@@ -4,7 +4,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import PropertyGrid from '../components/PropertyGrid';
+import PropertyDetailModal from '../components/PropertyDetailModal';
 import { Property } from '../components/PropertyCard';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Label } from '../components/ui/label';
 
 // Este é um exemplo de dados, em produção viria de uma API
 const mockProperties: Property[] = [
@@ -89,6 +96,16 @@ const defaultSiteSettings = {
 
 const HomePage = () => {
   const [settings, setSettings] = useState(defaultSiteSettings);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
 
   // Em uma aplicação real, faríamos uma chamada para API aqui
   useEffect(() => {
@@ -98,6 +115,39 @@ const HomePage = () => {
       setSettings(JSON.parse(savedSettings));
     }
   }, []);
+
+  // Manipular cliques em imóveis
+  const handlePropertyClick = (property: Property) => {
+    setSelectedProperty(property);
+    setIsDetailOpen(true);
+  };
+
+  // Abrir formulário de contato
+  const handleContactClick = (property: Property) => {
+    setSelectedProperty(property);
+    setIsDetailOpen(false);
+    setIsContactOpen(true);
+  };
+
+  // Atualizar campos do formulário de contato
+  const handleContactFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Enviar formulário de contato
+  const handleSubmitContact = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Em uma aplicação real, enviaria para um servidor
+    toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+    setIsContactOpen(false);
+    setContactForm({
+      name: '',
+      email: '',
+      phone: '',
+      message: ''
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -110,7 +160,11 @@ const HomePage = () => {
           backgroundImage={settings.heroBackground} 
         />
         
-        <PropertyGrid properties={mockProperties} title="Destaques para alugar" />
+        <PropertyGrid 
+          properties={mockProperties.filter(p => p.type === 'rent')} 
+          title="Destaques para alugar" 
+          onPropertyClick={handlePropertyClick}
+        />
         
         <div className="bg-gray-50 py-16">
           <div className="container mx-auto px-4 text-center">
@@ -168,7 +222,11 @@ const HomePage = () => {
         </div>
         
         <div className="py-16">
-          <PropertyGrid properties={mockProperties.slice(2)} title="Destaques para comprar" />
+          <PropertyGrid 
+            properties={mockProperties.filter(p => p.type === 'sale')} 
+            title="Destaques para comprar" 
+            onPropertyClick={handlePropertyClick}
+          />
         </div>
       </main>
       
@@ -177,6 +235,107 @@ const HomePage = () => {
         contactEmail={settings.contactEmail}
         contactPhone={settings.contactPhone}
       />
+      
+      {/* Modal de detalhes do imóvel */}
+      {selectedProperty && (
+        <PropertyDetailModal
+          property={selectedProperty}
+          open={isDetailOpen}
+          onOpenChange={setIsDetailOpen}
+          onContactClick={handleContactClick}
+        />
+      )}
+      
+      {/* Modal de contato */}
+      {selectedProperty && (
+        <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Entre em contato sobre este imóvel</DialogTitle>
+              <DialogDescription>
+                Preencha o formulário abaixo para enviar uma mensagem sobre {selectedProperty.title}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form onSubmit={handleSubmitContact}>
+              <div className="space-y-4 py-4">
+                <div className="flex gap-3 mb-4 bg-gray-50 p-3 rounded-md">
+                  <img 
+                    src={selectedProperty.imageUrl} 
+                    alt={selectedProperty.title} 
+                    className="h-16 w-16 object-cover rounded"
+                  />
+                  <div>
+                    <h3 className="font-medium">{selectedProperty.title}</h3>
+                    <p className="text-sm text-gray-500">{selectedProperty.address}</p>
+                    <p className="text-sm font-medium">
+                      {selectedProperty.type === 'rent' 
+                        ? `R$ ${selectedProperty.price}/mês`
+                        : `R$ ${selectedProperty.price.toLocaleString()}`
+                      }
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome completo</Label>
+                    <Input 
+                      id="name" 
+                      name="name" 
+                      placeholder="Seu nome completo" 
+                      value={contactForm.name} 
+                      onChange={handleContactFormChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefone</Label>
+                    <Input 
+                      id="phone" 
+                      name="phone" 
+                      placeholder="(00) 00000-0000" 
+                      value={contactForm.phone} 
+                      onChange={handleContactFormChange}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    placeholder="seu-email@exemplo.com" 
+                    value={contactForm.email} 
+                    onChange={handleContactFormChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="message">Mensagem</Label>
+                  <Textarea 
+                    id="message" 
+                    name="message" 
+                    placeholder="Olá, tenho interesse neste imóvel e gostaria de mais informações." 
+                    className="min-h-24" 
+                    value={contactForm.message} 
+                    onChange={handleContactFormChange}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button type="submit">Enviar Mensagem</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

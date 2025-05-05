@@ -8,6 +8,9 @@ import HomePage from "./pages/HomePage";
 import AdminPage from "./pages/AdminPage";
 import SettingsPage from "./pages/SettingsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import PropertiesPage from "./pages/PropertiesPage";
+import MessagesPage from "./pages/MessagesPage";
+import MetricsPage from "./pages/MetricsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +28,9 @@ const App = () => (
           <Route path="/admin" element={<AdminPage />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="configuracoes" element={<SettingsPage />} />
+            <Route path="imoveis" element={<PropertiesPage />} />
+            <Route path="mensagens" element={<MessagesPage />} />
+            <Route path="metricas" element={<MetricsPage />} />
             {/* Adicione outras rotas do admin aqui */}
           </Route>
           
