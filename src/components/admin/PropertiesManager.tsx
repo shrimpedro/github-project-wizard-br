@@ -79,15 +79,39 @@ const PropertiesManager = () => {
   // Adicionar nova propriedade
   const handleAddProperty = (newProperty: Omit<Property, 'id'>) => {
     const id = Date.now().toString();
-    setProperties([...properties, { ...newProperty, id }]);
+    // Ensure all required properties are present
+    setProperties([...properties, { 
+      id, 
+      title: newProperty.title,
+      address: newProperty.address,
+      price: newProperty.price,
+      type: newProperty.type,
+      bedrooms: newProperty.bedrooms,
+      bathrooms: newProperty.bathrooms,
+      area: newProperty.area,
+      imageUrl: newProperty.imageUrl,
+      description: newProperty.description
+    }]);
     setIsAddDialogOpen(false);
     toast.success('Imóvel adicionado com sucesso!');
   };
 
   // Editar propriedade existente
   const handleEditProperty = (updatedProperty: Property) => {
+    // Ensure we're using the complete Property type with all required fields
     setProperties(properties.map(property => 
-      property.id === updatedProperty.id ? updatedProperty : property
+      property.id === updatedProperty.id ? {
+        id: updatedProperty.id,
+        title: updatedProperty.title,
+        address: updatedProperty.address,
+        price: updatedProperty.price,
+        type: updatedProperty.type,
+        bedrooms: updatedProperty.bedrooms,
+        bathrooms: updatedProperty.bathrooms,
+        area: updatedProperty.area,
+        imageUrl: updatedProperty.imageUrl,
+        description: updatedProperty.description
+      } : property
     ));
     setIsEditDialogOpen(false);
     toast.success('Imóvel atualizado com sucesso!');
