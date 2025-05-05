@@ -13,10 +13,12 @@ export interface Property {
   bathrooms: number;
   area: number;
   imageUrl: string;
+  description?: string; // Added description as an optional property
 }
 
 interface PropertyCardProps {
   property: Property;
+  onClick?: (property: Property) => void; // Added onClick as an optional property
 }
 
 const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
@@ -27,9 +29,16 @@ const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
   }).format(price) + (type === 'rent' ? '/mês' : '');
 };
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick(property);
+    }
+  };
+
   return (
-    <Link to={`/imovel/${property.id}`}>
+    <Link to={`/imovel/${property.id}`} onClick={handleClick}>
       <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300">
         <div className="aspect-video relative overflow-hidden">
           <img

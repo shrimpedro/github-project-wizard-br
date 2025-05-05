@@ -17,7 +17,7 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({ properties, title, onProper
           <PropertyCard 
             key={property.id} 
             property={property}
-            onClick={() => onPropertyClick && onPropertyClick(property)}
+            onClick={onPropertyClick} // Pass the onClick handler correctly
           />
         ))}
       </div>
