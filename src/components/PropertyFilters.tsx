@@ -69,22 +69,23 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
     if (Object.values(initialFilters).some(val => val !== undefined)) {
       onFilterChange(localFilters);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = (field: keyof FilterValues, value: string) => {
     const numberValue = value === '' ? undefined : Number(value);
-    setLocalFilters({
-      ...localFilters,
+    setLocalFilters(prev => ({
+      ...prev,
       [field]: numberValue
-    });
+    }));
   };
 
   const handleSelectChange = (field: keyof FilterValues, value: string) => {
     const numberValue = value === '' ? undefined : Number(value);
-    setLocalFilters({
-      ...localFilters,
+    setLocalFilters(prev => ({
+      ...prev,
       [field]: numberValue
-    });
+    }));
   };
 
   const handleApplyFilters = () => {

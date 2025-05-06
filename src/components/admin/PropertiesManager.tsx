@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, FileSpreadsheet, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
@@ -9,6 +8,7 @@ import PropertyTable from './PropertyTable';
 import PropertyFormDialog from './PropertyFormDialog';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import PropertySearchBar from './PropertySearchBar';
+import { exportToExcel } from '@/utils/exportUtils';
 
 // Propriedades iniciais para demonstração
 const initialProperties: Property[] = [
@@ -126,17 +126,37 @@ const PropertiesManager = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  // Exportar propriedades para Excel
+  const handleExportToExcel = () => {
+    try {
+      exportToExcel(filteredProperties, 'imoveis_exportados');
+      toast.success('Imóveis exportados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar imóveis:', error);
+      toast.error('Erro ao exportar imóveis. Tente novamente.');
+    }
+  };
+
   return (
     <div className="p-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-2xl">Gerenciamento de Imóveis</CardTitle>
-          <Button 
-            className="flex items-center gap-1" 
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            <PlusCircle className="h-4 w-4" /> Adicionar Imóvel
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline"
+              className="flex items-center gap-1" 
+              onClick={handleExportToExcel}
+            >
+              <FileSpreadsheet className="h-4 w-4" /> Exportar Excel
+            </Button>
+            <Button 
+              className="flex items-center gap-1" 
+              onClick={() => setIsAddDialogOpen(true)}
+            >
+              <PlusCircle className="h-4 w-4" /> Adicionar Imóvel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <PropertySearchBar 
