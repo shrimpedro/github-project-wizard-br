@@ -2,6 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
+import { Badge } from './ui/badge';
+import { LockIcon } from 'lucide-react';
 
 export interface Property {
   id: string;
@@ -14,13 +16,19 @@ export interface Property {
   area: number;
   imageUrl: string;
   description?: string;
-  status?: string; // Adding the missing status property
-  featured?: boolean; // Adding the missing featured property
+  status?: string;
+  featured?: boolean;
+  isPublic?: boolean;
+  images?: string[];
+  contactPhone?: string;
+  contactEmail?: string;
+  fullAddress?: string;
 }
 
 interface PropertyCardProps {
   property: Property;
   onClick?: (property: Property) => void;
+  showPrivateInfo?: boolean;
 }
 
 const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
@@ -31,13 +39,18 @@ const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
   }).format(price) + (type === 'rent' ? '/mês' : '');
 };
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, showPrivateInfo = false }) => {
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
       e.preventDefault();
       onClick(property);
     }
   };
+
+  // If the property is not public and we're not showing private info, don't render the card
+  if (property.isPublic === false && !showPrivateInfo) {
+    return null;
+  }
 
   return (
     <Link to={`/imovel/${property.id}`} onClick={handleClick}>
@@ -48,20 +61,34 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
             alt={property.title}
             className="w-full h-full object-cover"
           />
-          {property.featured && (
-            <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 text-xs rounded-md">
-              Destaque
-            </div>
-          )}
+          <div className="absolute top-2 right-2 flex gap-1">
+            {property.featured && (
+              <Badge className="bg-primary text-white px-2 py-1 text-xs rounded-md">
+                Destaque
+              </Badge>
+            )}
+            {property.isPublic === false && (
+              <Badge variant="secondary" className="flex items-center gap-1 px-2 py-1 text-xs rounded-md">
+                <LockIcon size={12} /> Privado
+              </Badge>
+            )}
+          </div>
         </div>
         <CardHeader className="p-4 pb-0">
           <h3 className="text-lg font-bold">{property.title}</h3>
-          <p className="text-sm text-gray-500">{property.address}</p>
+          <p className="text-sm text-gray-500">
+            {showPrivateInfo && property.fullAddress ? property.fullAddress : property.address}
+          </p>
         </CardHeader>
         <CardContent className="p-4 pt-2">
           <p className="text-xl font-bold text-primary">
             {formatPrice(property.price, property.type)}
           </p>
+          {showPrivateInfo && property.contactPhone && (
+            <p className="text-sm text-gray-500 mt-2">
+              <strong>Contato:</strong> {property.contactPhone}
+            </p>
+          )}
         </CardContent>
         <CardFooter className="p-4 pt-0 flex justify-between text-sm text-gray-600 border-t">
           <div>{property.bedrooms} quartos</div>

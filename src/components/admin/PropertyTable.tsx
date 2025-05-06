@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '../ui/table';
 import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
 import { Property } from '../PropertyCard';
 
 interface PropertyTableProps {
@@ -30,6 +31,7 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
             <TableHead>Preço</TableHead>
             <TableHead>Quartos</TableHead>
             <TableHead>Área (m²)</TableHead>
+            <TableHead>Visibilidade</TableHead>
             <TableHead className="w-[100px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,6 +62,19 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
                 <TableCell>{property.bedrooms}</TableCell>
                 <TableCell>{property.area}</TableCell>
                 <TableCell>
+                  {property.isPublic === false ? (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <EyeOff className="h-3 w-3" />
+                      Privado
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-200 bg-green-50">
+                      <Eye className="h-3 w-3" />
+                      Público
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
                   <div className="flex gap-2">
                     <Button 
                       variant="ghost" 
@@ -81,7 +96,7 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={8} className="h-24 text-center">
                 Nenhum imóvel encontrado.
               </TableCell>
             </TableRow>

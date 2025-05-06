@@ -22,6 +22,7 @@ export interface PropertyFilters {
   maxPrice?: number;
   bedrooms?: number;
   status?: 'all' | 'active' | 'pending' | 'archived';
+  isPublic?: boolean;
 }
 
 const PropertySearchBar = ({ 
@@ -48,7 +49,8 @@ const PropertySearchBar = ({
       status: 'all',
       minPrice: undefined,
       maxPrice: undefined,
-      bedrooms: undefined
+      bedrooms: undefined,
+      isPublic: undefined
     };
     setFilters(defaultFilters);
     if (onFilterChange) {
@@ -160,6 +162,29 @@ const PropertySearchBar = ({
                       <SelectItem value="3">3+</SelectItem>
                       <SelectItem value="4">4+</SelectItem>
                       <SelectItem value="5">5+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Visibilidade</label>
+                  <Select
+                    value={filters.isPublic !== undefined ? (filters.isPublic ? 'public' : 'private') : 'all'}
+                    onValueChange={(value) => {
+                      if (value === 'all') {
+                        handleFilterChange('isPublic', undefined);
+                      } else {
+                        handleFilterChange('isPublic', value === 'public');
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      <SelectItem value="public">Públicas</SelectItem>
+                      <SelectItem value="private">Privadas</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

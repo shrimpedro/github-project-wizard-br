@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { PlusCircle, FileSpreadsheet, Download } from 'lucide-react';
+import { PlusCircle, FileSpreadsheet } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
@@ -7,7 +8,7 @@ import { Property } from '../PropertyCard';
 import PropertyTable from './PropertyTable';
 import PropertyFormDialog from './PropertyFormDialog';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
-import PropertySearchBar from './PropertySearchBar';
+import PropertySearchBar, { PropertyFilters } from './PropertySearchBar';
 import { exportToExcel } from '@/utils/exportUtils';
 
 // Propriedades iniciais para demonstração
@@ -16,50 +17,98 @@ const initialProperties: Property[] = [
     id: '1',
     title: 'Apartamento em Pinheiros',
     address: 'Pinheiros, São Paulo - SP',
+    fullAddress: 'Rua dos Pinheiros, 123, Apto 45 - Pinheiros, São Paulo - SP',
     price: 2500,
     type: 'rent',
     bedrooms: 2,
     bathrooms: 1,
     area: 65,
-    imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60'
+    imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60',
+    contactPhone: '(11) 98765-4321',
+    contactEmail: 'contato@example.com',
+    isPublic: true
   },
   {
     id: '2',
     title: 'Casa em Vila Madalena',
     address: 'Vila Madalena, São Paulo - SP',
+    fullAddress: 'Rua Aspicuelta, 456 - Vila Madalena, São Paulo - SP',
     price: 1200000,
     type: 'sale',
     bedrooms: 3,
     bathrooms: 2,
     area: 120,
-    imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG91c2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60'
+    imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG91c2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
+    contactPhone: '(11) 98765-4321',
+    contactEmail: 'contato@example.com',
+    isPublic: true
   },
   {
     id: '3',
     title: 'Studio na Consolação',
     address: 'Consolação, São Paulo - SP',
+    fullAddress: 'Rua da Consolação, 789, Apto 12 - Consolação, São Paulo - SP',
     price: 1800,
     type: 'rent',
     bedrooms: 1,
     bathrooms: 1,
     area: 40,
-    imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3R1ZGlvJTIwYXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60'
+    imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3R1ZGlvJTIwYXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60',
+    contactPhone: '(11) 98765-4321',
+    contactEmail: 'contato@example.com',
+    isPublic: false
   },
 ];
 
 const PropertiesManager = () => {
   const [properties, setProperties] = useState<Property[]>(initialProperties);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<PropertyFilters>({});
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentProperty, setCurrentProperty] = useState<Property | null>(null);
 
-  // Filtrar propriedades com base no termo de pesquisa
-  const filteredProperties = properties.filter(property => 
-    property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtrar propriedades com base no termo de pesquisa e filtros
+  const filteredProperties = properties.filter(property => {
+    // Search term filter
+    const matchesSearchTerm = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              property.address.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearchTerm) return false;
+    
+    // Type filter
+    if (filters.type && filters.type !== 'all' && property.type !== filters.type) {
+      return false;
+    }
+    
+    // Status filter
+    if (filters.status && filters.status !== 'all' && property.status !== filters.status) {
+      return false;
+    }
+    
+    // Min price filter
+    if (filters.minPrice && property.price < filters.minPrice) {
+      return false;
+    }
+    
+    // Max price filter
+    if (filters.maxPrice && property.price > filters.maxPrice) {
+      return false;
+    }
+    
+    // Bedrooms filter
+    if (filters.bedrooms && filters.bedrooms > 0 && property.bedrooms < filters.bedrooms) {
+      return false;
+    }
+    
+    // Visibility filter
+    if (filters.isPublic !== undefined && property.isPublic !== filters.isPublic) {
+      return false;
+    }
+    
+    return true;
+  });
 
   // Adicionar nova propriedade
   const handleAddProperty = (newProperty: Omit<Property, 'id'>) => {
@@ -68,15 +117,7 @@ const PropertiesManager = () => {
     // Ensure all required properties are present
     setProperties([...properties, { 
       id, 
-      title: newProperty.title,
-      address: newProperty.address,
-      price: newProperty.price,
-      type: newProperty.type,
-      bedrooms: newProperty.bedrooms,
-      bathrooms: newProperty.bathrooms,
-      area: newProperty.area,
-      imageUrl: newProperty.imageUrl,
-      description: newProperty.description
+      ...newProperty
     }]);
     
     setIsAddDialogOpen(false);
@@ -85,20 +126,8 @@ const PropertiesManager = () => {
 
   // Editar propriedade existente
   const handleEditProperty = (updatedProperty: Property) => {
-    // Ensure we're using the complete Property type with all required fields
     setProperties(properties.map(property => 
-      property.id === updatedProperty.id ? {
-        id: updatedProperty.id,
-        title: updatedProperty.title,
-        address: updatedProperty.address,
-        price: updatedProperty.price,
-        type: updatedProperty.type,
-        bedrooms: updatedProperty.bedrooms,
-        bathrooms: updatedProperty.bathrooms,
-        area: updatedProperty.area,
-        imageUrl: updatedProperty.imageUrl,
-        description: updatedProperty.description
-      } : property
+      property.id === updatedProperty.id ? updatedProperty : property
     ));
     
     setIsEditDialogOpen(false);
@@ -129,7 +158,13 @@ const PropertiesManager = () => {
   // Exportar propriedades para Excel
   const handleExportToExcel = () => {
     try {
-      exportToExcel(filteredProperties, 'imoveis_exportados');
+      // Prepare data for export - omit private fields
+      const exportData = filteredProperties.map(({ contactPhone, contactEmail, fullAddress, ...property }) => ({
+        ...property,
+        visibilidade: property.isPublic ? 'Público' : 'Privado'
+      }));
+      
+      exportToExcel(exportData, 'imoveis_exportados');
       toast.success('Imóveis exportados com sucesso!');
     } catch (error) {
       console.error('Erro ao exportar imóveis:', error);
@@ -161,7 +196,8 @@ const PropertiesManager = () => {
         <CardContent>
           <PropertySearchBar 
             searchTerm={searchTerm} 
-            onSearchChange={setSearchTerm} 
+            onSearchChange={setSearchTerm}
+            onFilterChange={setFilters}
           />
           <PropertyTable 
             properties={filteredProperties} 
