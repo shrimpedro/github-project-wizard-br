@@ -1,174 +1,245 @@
 
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import PropertyGrid from '../components/PropertyGrid';
-import PropertyDetailModal from '../components/PropertyDetailModal';
-import { Property } from '../components/PropertyCard';
-import PropertyFilters from '../components/PropertyFilters';
-import { propertyService, siteSettingsService } from '../services/api';
+import { useLocation } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import SearchBar from '@/components/SearchBar';
+import PropertyFilters from '@/components/PropertyFilters';
+import PropertyGrid from '@/components/PropertyGrid';
+import PropertyDetailModal from '@/components/PropertyDetailModal';
+import { propertyService } from '@/services/api';
 import { toast } from 'sonner';
-import { useSearchParams } from 'react-router-dom';
 
-const RentalsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+interface Property {
+  id: string;
+  title: string;
+  address: string;
+  price: number;
+  type: 'rent' | 'sale';
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  imageUrl: string;
+  description: string;
+  status: string;
+  featured: boolean;
+}
+
+interface FilterState {
+  minPrice?: number;
+  maxPrice?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  minArea?: number;
+  maxArea?: number;
+}
+
+const RentalsPage: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<any>({});
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<FilterState>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const propertiesPerPage = 12;
   
-  // Get filter values from URL params
-  const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
-  const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
-  const minBedrooms = searchParams.get('bedrooms') ? Number(searchParams.get('bedrooms')) : undefined;
-  const minBathrooms = searchParams.get('bathrooms') ? Number(searchParams.get('bathrooms')) : undefined;
-  const minArea = searchParams.get('minArea') ? Number(searchParams.get('minArea')) : undefined;
-  const maxArea = searchParams.get('maxArea') ? Number(searchParams.get('maxArea')) : undefined;
-
+  const location = useLocation();
+  
+  // Get properties on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+    const loadProperties = async () => {
       try {
-        const [propertiesData, siteSettings] = await Promise.all([
-          propertyService.getAllProperties(),
-          siteSettingsService.getSettings()
-        ]);
-        
-        // Filter only for rent properties
-        const rentProperties = propertiesData.filter(property => 
-          property.type === 'rent' && property.status === 'active'
-        );
-        
-        setProperties(rentProperties);
-        setSettings(siteSettings);
+        setIsLoading(true);
+        const data = await propertyService.getPropertyByType('rent');
+        setProperties(data);
+        setFilteredProperties(data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error loading properties:', error);
         toast.error('Não foi possível carregar os imóveis');
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchData();
+    
+    loadProperties();
   }, []);
-
-  // Apply filters whenever they change
+  
+  // Handle search and filter
   useEffect(() => {
-    let filtered = [...properties];
+    let result = [...properties];
     
-    if (minPrice) {
-      filtered = filtered.filter(property => property.price >= minPrice);
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        property => 
+          property.title.toLowerCase().includes(query) || 
+          property.address.toLowerCase().includes(query) ||
+          property.description.toLowerCase().includes(query)
+      );
     }
     
-    if (maxPrice) {
-      filtered = filtered.filter(property => property.price <= maxPrice);
+    // Apply price filters
+    if (filters.minPrice) {
+      result = result.filter(property => property.price >= (filters.minPrice || 0));
     }
     
-    if (minBedrooms) {
-      filtered = filtered.filter(property => property.bedrooms >= minBedrooms);
+    if (filters.maxPrice) {
+      result = result.filter(property => property.price <= (filters.maxPrice || Infinity));
     }
     
-    if (minBathrooms) {
-      filtered = filtered.filter(property => property.bathrooms >= minBathrooms);
+    // Apply bedroom filter
+    if (filters.bedrooms) {
+      result = result.filter(property => property.bedrooms >= (filters.bedrooms || 0));
     }
     
-    if (minArea) {
-      filtered = filtered.filter(property => property.area >= minArea);
+    // Apply bathroom filter
+    if (filters.bathrooms) {
+      result = result.filter(property => property.bathrooms >= (filters.bathrooms || 0));
     }
     
-    if (maxArea) {
-      filtered = filtered.filter(property => property.area <= maxArea);
+    // Apply area filters
+    if (filters.minArea) {
+      result = result.filter(property => property.area >= (filters.minArea || 0));
     }
     
-    setFilteredProperties(filtered);
-  }, [properties, minPrice, maxPrice, minBedrooms, minBathrooms, minArea, maxArea]);
-
-  const handleFilterChange = (filters: any) => {
-    // Update URL with filters
-    setSearchParams({
-      minPrice: filters.minPrice ? filters.minPrice.toString() : '',
-      maxPrice: filters.maxPrice ? filters.maxPrice.toString() : '',
-      bedrooms: filters.bedrooms ? filters.bedrooms.toString() : '',
-      bathrooms: filters.bathrooms ? filters.bathrooms.toString() : '',
-      minArea: filters.minArea ? filters.minArea.toString() : '',
-      maxArea: filters.maxArea ? filters.maxArea.toString() : '',
-    });
-  };
-
+    if (filters.maxArea) {
+      result = result.filter(property => property.area <= (filters.maxArea || Infinity));
+    }
+    
+    setFilteredProperties(result);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchQuery, filters, properties]);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredProperties.length / propertiesPerPage);
+  const currentProperties = filteredProperties.slice(
+    (currentPage - 1) * propertiesPerPage,
+    currentPage * propertiesPerPage
+  );
+  
   const handlePropertyClick = (property: Property) => {
     setSelectedProperty(property);
-    setIsDetailOpen(true);
+    setModalOpen(true);
   };
-
+  
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+  
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+  
+  const handleResetFilters = () => {
+    setFilters({});
+    setSearchQuery('');
+  };
+  
+  const handleContactClick = (property: Property) => {
+    // In a real app, this would show a contact form or redirect to a contact page
+    toast.success(`Solicitação de contato para: ${property.title}`);
+  };
+  
   return (
     <div className="flex flex-col min-h-screen">
-      <Header logo={settings.logo} siteName={settings.site_name || "ImobiliáriaApp"} />
+      <Header siteName="ImobiliáriaApp" />
       
       <main className="flex-grow">
-        <div className="bg-gray-50 py-12">
-          <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold mb-6">Imóveis para Alugar</h1>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-8">Imóveis para Alugar</h1>
+          
+          <div className="mb-6">
+            <SearchBar onSearch={handleSearch} initialQuery={searchQuery} />
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <Card>
+                <CardContent className="p-4">
+                  <PropertyFilters 
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onResetFilters={handleResetFilters}
+                  />
+                </CardContent>
+              </Card>
+            </div>
             
-            <PropertyFilters 
-              onFilterChange={handleFilterChange}
-              initialFilters={{
-                minPrice,
-                maxPrice,
-                bedrooms: minBedrooms,
-                bathrooms: minBathrooms,
-                minArea,
-                maxArea
-              }}
-            />
-            
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                    <div className="h-48 bg-gray-300"></div>
-                    <div className="p-4">
-                      <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-                      <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                      <div className="h-4 bg-gray-300 rounded w-2/3"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <>
-                {filteredProperties.length > 0 ? (
+            <div className="lg:col-span-3">
+              {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              ) : filteredProperties.length === 0 ? (
+                <div className="text-center py-12 bg-muted rounded-lg">
+                  <h3 className="text-lg font-medium">Nenhum imóvel encontrado</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    Tente ajustar seus filtros de busca
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={handleResetFilters}
+                  >
+                    Limpar Filtros
+                  </Button>
+                </div>
+              ) : (
+                <>
                   <PropertyGrid 
-                    properties={filteredProperties} 
+                    properties={currentProperties}
                     onPropertyClick={handlePropertyClick}
                   />
-                ) : (
-                  <div className="text-center py-12">
-                    <h3 className="text-xl font-medium text-gray-700">Nenhum imóvel encontrado</h3>
-                    <p className="text-gray-500 mt-2">Tente ajustar os filtros para ver mais opções</p>
-                  </div>
-                )}
-              </>
-            )}
+                  
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center space-x-4 mt-8">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      
+                      <span className="text-sm">
+                        Página {currentPage} de {totalPages}
+                      </span>
+                      
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </main>
       
-      <Footer 
-        siteName={settings.site_name || "ImobiliáriaApp"} 
-        contactEmail={settings.contact_email || "contato@imobiliaria.com"} 
-        contactPhone={settings.contact_phone || "(11) 9999-9999"} 
-      />
-      
-      {/* Modal de detalhes do imóvel */}
       {selectedProperty && (
         <PropertyDetailModal
           property={selectedProperty}
-          open={isDetailOpen}
-          onOpenChange={setIsDetailOpen}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onContactClick={handleContactClick}
         />
       )}
+      
+      <Footer siteName="ImobiliáriaApp" contactEmail="contato@imobiliaria.com" contactPhone="(11) 9999-9999" />
     </div>
   );
 };
