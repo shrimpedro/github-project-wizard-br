@@ -51,7 +51,11 @@ const PageContent = () => {
             <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
           </div>
         </main>
-        <Footer />
+        <Footer 
+          siteName={settings.site_name || "ImobiliáriaApp"} 
+          contactEmail={settings.contact_email || "contato@imobiliaria.com"} 
+          contactPhone={settings.contact_phone || "(11) 9999-9999"} 
+        />
       </div>
     );
   }
@@ -66,7 +70,11 @@ const PageContent = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="prose max-w-full mx-auto" dangerouslySetInnerHTML={{ __html: pageContent.content }} />
       </main>
-      <Footer />
+      <Footer 
+        siteName={settings.site_name || "ImobiliáriaApp"} 
+        contactEmail={settings.contact_email || "contato@imobiliaria.com"} 
+        contactPhone={settings.contact_phone || "(11) 9999-9999"} 
+      />
     </div>
   );
 };
