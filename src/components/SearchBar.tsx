@@ -1,15 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  initialQuery?: string;
 }
 
-const SearchBar = ({ onSearch }: SearchBarProps) => {
-  const [query, setQuery] = useState('');
+const SearchBar = ({ onSearch, initialQuery = '' }: SearchBarProps) => {
+  const [query, setQuery] = useState(initialQuery);
+
+  // Update the query state when initialQuery prop changes
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

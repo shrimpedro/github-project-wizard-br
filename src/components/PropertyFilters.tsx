@@ -19,12 +19,7 @@ import {
 } from './ui/select';
 import { Card } from './ui/card';
 
-interface PropertyFilterProps {
-  onFilterChange: (filters: FilterValues) => void;
-  initialFilters?: Partial<FilterValues>;
-}
-
-interface FilterValues {
+export interface FilterValues {
   minPrice?: number;
   maxPrice?: number;
   bedrooms?: number;
@@ -33,46 +28,67 @@ interface FilterValues {
   maxArea?: number;
 }
 
+interface PropertyFilterProps {
+  onFilterChange: (filters: FilterValues) => void;
+  filters?: FilterValues;
+  initialFilters?: Partial<FilterValues>;
+  onResetFilters?: () => void;
+}
+
 const PropertyFilters: React.FC<PropertyFilterProps> = ({ 
   onFilterChange,
-  initialFilters = {}
+  filters = {},
+  initialFilters = {},
+  onResetFilters
 }) => {
-  const [filters, setFilters] = useState<FilterValues>({
-    minPrice: initialFilters.minPrice,
-    maxPrice: initialFilters.maxPrice,
-    bedrooms: initialFilters.bedrooms,
-    bathrooms: initialFilters.bathrooms,
-    minArea: initialFilters.minArea,
-    maxArea: initialFilters.maxArea,
+  const [localFilters, setLocalFilters] = useState<FilterValues>({
+    minPrice: filters.minPrice || initialFilters.minPrice,
+    maxPrice: filters.maxPrice || initialFilters.maxPrice,
+    bedrooms: filters.bedrooms || initialFilters.bedrooms,
+    bathrooms: filters.bathrooms || initialFilters.bathrooms,
+    minArea: filters.minArea || initialFilters.minArea,
+    maxArea: filters.maxArea || initialFilters.maxArea,
   });
 
   const [expanded, setExpanded] = useState(false);
 
+  // Update local filters when external filters change
+  useEffect(() => {
+    setLocalFilters({
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      bedrooms: filters.bedrooms,
+      bathrooms: filters.bathrooms,
+      minArea: filters.minArea,
+      maxArea: filters.maxArea,
+    });
+  }, [filters]);
+
   // Apply initial filters on mount
   useEffect(() => {
     if (Object.values(initialFilters).some(val => val !== undefined)) {
-      onFilterChange(filters);
+      onFilterChange(localFilters);
     }
   }, []);
 
   const handleInputChange = (field: keyof FilterValues, value: string) => {
     const numberValue = value === '' ? undefined : Number(value);
-    setFilters({
-      ...filters,
+    setLocalFilters({
+      ...localFilters,
       [field]: numberValue
     });
   };
 
   const handleSelectChange = (field: keyof FilterValues, value: string) => {
     const numberValue = value === '' ? undefined : Number(value);
-    setFilters({
-      ...filters,
+    setLocalFilters({
+      ...localFilters,
       [field]: numberValue
     });
   };
 
   const handleApplyFilters = () => {
-    onFilterChange(filters);
+    onFilterChange(localFilters);
   };
 
   const handleResetFilters = () => {
@@ -84,8 +100,11 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
       minArea: undefined,
       maxArea: undefined,
     };
-    setFilters(resetFilters);
+    setLocalFilters(resetFilters);
     onFilterChange(resetFilters);
+    if (onResetFilters) {
+      onResetFilters();
+    }
   };
 
   return (
@@ -122,7 +141,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                     id="minPrice"
                     type="number"
                     placeholder="Min"
-                    value={filters.minPrice || ''}
+                    value={localFilters.minPrice || ''}
                     onChange={(e) => handleInputChange('minPrice', e.target.value)}
                   />
                 </div>
@@ -132,7 +151,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                     id="maxPrice"
                     type="number"
                     placeholder="Max"
-                    value={filters.maxPrice || ''}
+                    value={localFilters.maxPrice || ''}
                     onChange={(e) => handleInputChange('maxPrice', e.target.value)}
                   />
                 </div>
@@ -142,7 +161,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                 <div>
                   <Label htmlFor="bedrooms">Quartos</Label>
                   <Select
-                    value={filters.bedrooms?.toString() || ''}
+                    value={localFilters.bedrooms?.toString() || ''}
                     onValueChange={(value) => handleSelectChange('bedrooms', value)}
                   >
                     <SelectTrigger id="bedrooms">
@@ -161,7 +180,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                 <div>
                   <Label htmlFor="bathrooms">Banheiros</Label>
                   <Select
-                    value={filters.bathrooms?.toString() || ''}
+                    value={localFilters.bathrooms?.toString() || ''}
                     onValueChange={(value) => handleSelectChange('bathrooms', value)}
                   >
                     <SelectTrigger id="bathrooms">
@@ -185,7 +204,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                     id="minArea"
                     type="number"
                     placeholder="Min"
-                    value={filters.minArea || ''}
+                    value={localFilters.minArea || ''}
                     onChange={(e) => handleInputChange('minArea', e.target.value)}
                   />
                 </div>
@@ -195,7 +214,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                     id="maxArea"
                     type="number"
                     placeholder="Max"
-                    value={filters.maxArea || ''}
+                    value={localFilters.maxArea || ''}
                     onChange={(e) => handleInputChange('maxArea', e.target.value)}
                   />
                 </div>

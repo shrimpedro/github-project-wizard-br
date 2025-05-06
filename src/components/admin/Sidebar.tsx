@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Users, MessageSquare, BarChart2, Settings, LogOut, Building, Image, Share2 } from 'lucide-react';
-import { authService } from '../../services/api';
+import { authService } from '@/services/api';
 
 const Sidebar = () => {
   const location = useLocation();
