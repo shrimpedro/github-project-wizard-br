@@ -13,12 +13,14 @@ export interface Property {
   bathrooms: number;
   area: number;
   imageUrl: string;
-  description?: string; // Added description as an optional property
+  description?: string;
+  status?: string; // Adding the missing status property
+  featured?: boolean; // Adding the missing featured property
 }
 
 interface PropertyCardProps {
   property: Property;
-  onClick?: (property: Property) => void; // Added onClick as an optional property
+  onClick?: (property: Property) => void;
 }
 
 const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
@@ -46,6 +48,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
             alt={property.title}
             className="w-full h-full object-cover"
           />
+          {property.featured && (
+            <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 text-xs rounded-md">
+              Destaque
+            </div>
+          )}
         </div>
         <CardHeader className="p-4 pb-0">
           <h3 className="text-lg font-bold">{property.title}</h3>

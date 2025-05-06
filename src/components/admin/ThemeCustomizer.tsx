@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ColorPicker, Palette } from 'lucide-react';
+import { Palette, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Interface para as configurações de tema
@@ -96,7 +96,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="primaryColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor Primária
+                  <Circle className="h-4 w-4 fill-current" /> Cor Primária
                 </Label>
                 <div className="flex">
                   <Input
@@ -117,7 +117,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
               
               <div className="space-y-2">
                 <Label htmlFor="secondaryColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor Secundária
+                  <Circle className="h-4 w-4 fill-current" /> Cor Secundária
                 </Label>
                 <div className="flex">
                   <Input
@@ -138,7 +138,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
               
               <div className="space-y-2">
                 <Label htmlFor="accentColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor de Destaque
+                  <Circle className="h-4 w-4 fill-current" /> Cor de Destaque
                 </Label>
                 <div className="flex">
                   <Input
@@ -159,7 +159,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
               
               <div className="space-y-2">
                 <Label htmlFor="textColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor do Texto
+                  <Circle className="h-4 w-4 fill-current" /> Cor do Texto
                 </Label>
                 <div className="flex">
                   <Input
@@ -180,7 +180,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
               
               <div className="space-y-2">
                 <Label htmlFor="backgroundColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor de Fundo
+                  <Circle className="h-4 w-4 fill-current" /> Cor de Fundo
                 </Label>
                 <div className="flex">
                   <Input
@@ -201,7 +201,7 @@ const ThemeCustomizer = ({ initialTheme = defaultTheme, onSave }: ThemeCustomize
               
               <div className="space-y-2">
                 <Label htmlFor="buttonColor" className="flex items-center gap-2">
-                  <ColorPicker className="h-4 w-4" /> Cor dos Botões
+                  <Circle className="h-4 w-4 fill-current" /> Cor dos Botões
                 </Label>
                 <div className="flex">
                   <Input
