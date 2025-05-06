@@ -1,4 +1,5 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // URLs base para o backend
@@ -75,145 +76,349 @@ const fetchApi = async <T>(
 export const authService = {
   login: async (email: string, password: string) => {
     try {
-      // Simulação de chamada de API em produção
-      if (process.env.NODE_ENV === 'development') {
-        // Login simulado para desenvolvimento
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        if (email === 'admin@imobiliaria.com' && password === 'admin123') {
-          const mockResponse = {
-            data: {
-              user: {
-                name: 'Administrador',
-                email,
-                role: 'admin',
-              },
-              token: 'mock-jwt-token',
-            },
-            status: 'success',
-          };
-          
-          localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('user', JSON.stringify(mockResponse.data.user));
-          localStorage.setItem('authToken', mockResponse.data.token);
-          
-          return mockResponse.data;
-        } else {
-          throw { message: 'Credenciais inválidas', status: 401 };
-        }
-      } else {
-        // Chamada real de API em produção
-        const response = await fetchApi<ApiResponse<{
-          user: { name: string; email: string; role: string };
-          token: string;
-        }>>('/auth/login', {
-          method: 'POST',
-          body: JSON.stringify({ email, password }),
-        });
-        
-        // Salva informações de autenticação
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('authToken', response.data.token);
-        
-        return response.data;
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
+      
+      if (error) throw { message: error.message, status: 401 };
+      
+      // Salva informações de autenticação
+      localStorage.setItem('isAuthenticated', 'true');
+      
+      return { 
+        user: data.user, 
+        session: data.session 
+      };
     } catch (error) {
       throw error;
     }
   },
   
-  logout: () => {
+  logout: async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
     window.location.href = '/';
   },
   
-  getCurrentUser: () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+  getCurrentUser: async () => {
+    const { data } = await supabase.auth.getUser();
+    return data.user;
   },
+
+  getSession: async () => {
+    const { data } = await supabase.auth.getSession();
+    return data.session;
+  },
+
+  signup: async (email: string, password: string, userData: { name: string }) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: userData
+      }
+    });
+
+    if (error) throw { message: error.message, status: 400 };
+    return data;
+  }
 };
 
 // Serviço de imóveis
 export const propertyService = {
   getAllProperties: async () => {
-    // Em produção, isso chamaria o backend
-    return fetchApi<ApiResponse<any[]>>('/properties');
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*');
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
   
   getPropertyById: async (id: string) => {
-    return fetchApi<ApiResponse<any>>(`/properties/${id}`);
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
   
   createProperty: async (property: any) => {
-    return fetchApi<ApiResponse<any>>('/properties', {
-      method: 'POST',
-      body: JSON.stringify(property),
-    });
+    const { data, error } = await supabase
+      .from('properties')
+      .insert([property])
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
   },
   
   updateProperty: async (id: string, property: any) => {
-    return fetchApi<ApiResponse<any>>(`/properties/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(property),
-    });
+    const { data, error } = await supabase
+      .from('properties')
+      .update(property)
+      .eq('id', id)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
   },
   
   deleteProperty: async (id: string) => {
-    return fetchApi<ApiResponse<null>>(`/properties/${id}`, {
-      method: 'DELETE',
-    });
+    const { error } = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw { message: error.message, status: 400 };
+    return null;
   },
   
   submitPropertyForReview: async (propertyData: any) => {
-    return fetchApi<ApiResponse<any>>('/properties/submit', {
-      method: 'POST',
-      body: JSON.stringify(propertyData),
-    });
+    // Create with pending status
+    const property = { ...propertyData, status: 'pending' };
+    const { data, error } = await supabase
+      .from('properties')
+      .insert([property])
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
   },
 };
 
 // Serviço de mensagens
 export const messageService = {
   getAllMessages: async () => {
-    return fetchApi<ApiResponse<any[]>>('/messages');
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
   
   getMessageById: async (id: string) => {
-    return fetchApi<ApiResponse<any>>(`/messages/${id}`);
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
   
   sendMessage: async (message: any) => {
-    return fetchApi<ApiResponse<any>>('/messages', {
-      method: 'POST',
-      body: JSON.stringify(message),
-    });
+    const { data, error } = await supabase
+      .from('messages')
+      .insert([message])
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
   },
   
   markAsRead: async (id: string) => {
-    return fetchApi<ApiResponse<any>>(`/messages/${id}/read`, {
-      method: 'PUT',
-    });
+    const { data, error } = await supabase
+      .from('messages')
+      .update({ read: true })
+      .eq('id', id)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
   },
   
   deleteMessage: async (id: string) => {
-    return fetchApi<ApiResponse<null>>(`/messages/${id}`, {
-      method: 'DELETE',
-    });
+    const { error } = await supabase
+      .from('messages')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw { message: error.message, status: 400 };
+    return null;
   },
 };
 
 // Serviço de métricas
 export const metricService = {
   getMetrics: async (timeRange: 'day' | 'week' | 'month' | 'year') => {
-    return fetchApi<ApiResponse<any>>(`/metrics?timeRange=${timeRange}`);
+    let rangeValue = 1;
+    let timeUnit: 'day' | 'week' | 'month' | 'year' = 'day';
+    
+    switch (timeRange) {
+      case 'week':
+        rangeValue = 7;
+        timeUnit = 'day';
+        break;
+      case 'month':
+        rangeValue = 30;
+        timeUnit = 'day';
+        break;
+      case 'year':
+        rangeValue = 12;
+        timeUnit = 'month';
+        break;
+      default:
+        rangeValue = 1;
+        timeUnit = 'day';
+    }
+    
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('*')
+      .gte('visit_date', new Date(Date.now() - rangeValue * 24 * 60 * 60 * 1000).toISOString());
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
   
   getPropertyPerformance: async () => {
-    return fetchApi<ApiResponse<any>>('/metrics/properties');
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('property_id, page_path')
+      .order('visit_date', { ascending: false });
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
   },
+
+  // Track page visits
+  trackPageVisit: async (pageData: { 
+    page_path: string;
+    property_id?: string;
+    referrer?: string;
+    device?: string;
+  }) => {
+    const visitorId = localStorage.getItem('visitor_id') || 
+      Math.random().toString(36).substring(2, 15);
+    
+    // Store the visitor ID for future visits
+    localStorage.setItem('visitor_id', visitorId);
+    
+    const { error } = await supabase
+      .from('analytics')
+      .insert([{ 
+        ...pageData,
+        visitor_id: visitorId
+      }]);
+    
+    if (error) console.error('Error tracking page visit:', error);
+  }
+};
+
+// Serviço de páginas
+export const pageService = {
+  getPageBySlug: async (slug: string) => {
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    
+    if (error) throw { message: error.message, status: 404 };
+    return data;
+  },
+  
+  getAllPages: async () => {
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .order('title');
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
+  },
+  
+  updatePage: async (id: string, content: any) => {
+    const { data, error } = await supabase
+      .from('pages')
+      .update(content)
+      .eq('id', id)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
+  }
+};
+
+// Serviço de configurações do site
+export const siteSettingsService = {
+  getSettings: async () => {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('*')
+      .eq('id', 1)
+      .single();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
+  },
+  
+  updateSettings: async (settings: any) => {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .update(settings)
+      .eq('id', 1)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
+  }
+};
+
+// Serviço de usuários/perfis
+export const userService = {
+  getAllUsers: async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data;
+  },
+  
+  getUserProfile: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) throw { message: error.message, status: 404 };
+    return data;
+  },
+  
+  updateUserProfile: async (userId: string, profileData: any) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(profileData)
+      .eq('id', userId)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
+  },
+  
+  updateUserRole: async (userId: string, role: 'user' | 'admin' | 'broker') => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ role })
+      .eq('id', userId)
+      .select();
+    
+    if (error) throw { message: error.message, status: 400 };
+    return data[0];
+  }
 };
 
 export default {
@@ -221,4 +426,7 @@ export default {
   properties: propertyService,
   messages: messageService,
   metrics: metricService,
+  pages: pageService,
+  settings: siteSettingsService,
+  users: userService
 };

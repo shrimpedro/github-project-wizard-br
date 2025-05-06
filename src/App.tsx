@@ -11,10 +11,17 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 import PropertiesPage from "./pages/PropertiesPage";
 import MessagesPage from "./pages/MessagesPage";
 import MetricsPage from "./pages/MetricsPage";
+import UsersPage from "./pages/UsersPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import SubmitPropertyPage from "./pages/SubmitPropertyPage";
 import AuthGuard from "./components/AuthGuard";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import CareersPage from "./pages/CareersPage";
+import PageContent from "./pages/PageContent";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +35,12 @@ const App = () => (
           <Route path="/" element={<HomePage />} />
           <Route path="/submit-property" element={<SubmitPropertyPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/page/:slug" element={<PageContent />} />
           
           {/* Rotas Protegidas do Admin */}
           <Route path="/admin" element={
@@ -40,6 +53,7 @@ const App = () => (
             <Route path="imoveis" element={<PropertiesPage />} />
             <Route path="mensagens" element={<MessagesPage />} />
             <Route path="metricas" element={<MetricsPage />} />
+            <Route path="usuarios" element={<UsersPage />} />
           </Route>
           
           {/* Rota 404 */}

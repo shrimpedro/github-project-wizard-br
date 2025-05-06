@@ -9,7 +9,271 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      analytics: {
+        Row: {
+          device: string | null
+          id: string
+          page_path: string
+          property_id: string | null
+          referrer: string | null
+          visit_date: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          device?: string | null
+          id?: string
+          page_path: string
+          property_id?: string | null
+          referrer?: string | null
+          visit_date?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          device?: string | null
+          id?: string
+          page_path?: string
+          property_id?: string | null
+          referrer?: string | null
+          visit_date?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          property_id: string | null
+          read: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          property_id?: string | null
+          read?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          property_id?: string | null
+          read?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          content: string
+          id: string
+          meta_description: string | null
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          id?: string
+          meta_description?: string | null
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          meta_description?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string
+          area: number
+          bathrooms: number
+          bedrooms: number
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          imageurl: string | null
+          price: number
+          status: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          area: number
+          bathrooms: number
+          bedrooms: number
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          imageurl?: string | null
+          price: number
+          status?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          area?: number
+          bathrooms?: number
+          bedrooms?: number
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          imageurl?: string | null
+          price?: number
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          hero_background: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
+          id: number
+          logo: string | null
+          site_name: string
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          hero_background?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: number
+          logo?: string | null
+          site_name: string
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          hero_background?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: number
+          logo?: string | null
+          site_name?: string
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
