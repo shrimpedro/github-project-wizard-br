@@ -43,7 +43,7 @@ const PropertySearchBar = ({
   };
 
   const handleResetFilters = () => {
-    const defaultFilters = {
+    const defaultFilters: PropertyFilters = {
       type: 'all',
       status: 'all',
       minPrice: undefined,
@@ -92,7 +92,7 @@ const PropertySearchBar = ({
                     <label className="text-sm font-medium">Tipo</label>
                     <Select 
                       value={filters.type} 
-                      onValueChange={(value) => handleFilterChange('type', value)}
+                      onValueChange={(value: 'all' | 'rent' | 'sale') => handleFilterChange('type', value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todos os tipos" />
@@ -108,7 +108,7 @@ const PropertySearchBar = ({
                     <label className="text-sm font-medium">Status</label>
                     <Select 
                       value={filters.status} 
-                      onValueChange={(value) => handleFilterChange('status', value)}
+                      onValueChange={(value: 'all' | 'active' | 'pending' | 'archived') => handleFilterChange('status', value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todos os status" />

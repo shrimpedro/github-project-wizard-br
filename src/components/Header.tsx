@@ -42,18 +42,13 @@ const Header = ({ logo, siteName }: HeaderProps) => {
               Anunciar imóvel
             </Link>
           </nav>
-          <Button 
-            as={Link} 
-            to="/submit-property" 
-            variant="outline" 
-            className="ml-4"
-          >
+          <Link to="/submit-property" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 ml-4">
             Enviar Imóvel
-          </Button>
-          <Button as={Link} to="/admin" className="flex items-center gap-2">
+          </Link>
+          <Link to="/admin" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 gap-2">
             <LogIn className="h-4 w-4" />
             Área do Corretor
-          </Button>
+          </Link>
         </div>
         
         <div className="md:hidden">
@@ -95,24 +90,21 @@ const Header = ({ logo, siteName }: HeaderProps) => {
               Anunciar imóvel
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
-              <Button 
-                as={Link} 
+              <Link 
                 to="/submit-property" 
-                variant="outline" 
-                className="w-full"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Enviar Imóvel
-              </Button>
-              <Button 
-                as={Link} 
+              </Link>
+              <Link 
                 to="/admin" 
-                className="w-full flex items-center justify-center gap-2"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <LogIn className="h-4 w-4" />
                 Área do Corretor
-              </Button>
+              </Link>
             </div>
           </nav>
         </div>
