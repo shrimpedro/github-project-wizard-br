@@ -162,14 +162,14 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                 <div>
                   <Label htmlFor="bedrooms">Quartos</Label>
                   <Select
-                    value={localFilters.bedrooms?.toString() || ''}
+                    value={localFilters.bedrooms?.toString() || '0'}
                     onValueChange={(value) => handleSelectChange('bedrooms', value)}
                   >
                     <SelectTrigger id="bedrooms">
                       <SelectValue placeholder="Qualquer" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Qualquer</SelectItem>
+                      <SelectItem value="0">Qualquer</SelectItem>
                       <SelectItem value="1">1+</SelectItem>
                       <SelectItem value="2">2+</SelectItem>
                       <SelectItem value="3">3+</SelectItem>
@@ -181,14 +181,14 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
                 <div>
                   <Label htmlFor="bathrooms">Banheiros</Label>
                   <Select
-                    value={localFilters.bathrooms?.toString() || ''}
+                    value={localFilters.bathrooms?.toString() || '0'}
                     onValueChange={(value) => handleSelectChange('bathrooms', value)}
                   >
                     <SelectTrigger id="bathrooms">
                       <SelectValue placeholder="Qualquer" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Qualquer</SelectItem>
+                      <SelectItem value="0">Qualquer</SelectItem>
                       <SelectItem value="1">1+</SelectItem>
                       <SelectItem value="2">2+</SelectItem>
                       <SelectItem value="3">3+</SelectItem>
