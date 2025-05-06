@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -6,37 +5,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { BarChart2, Calendar, Users, Eye, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 
+// Dados mais realistas
 const weeklyData = [
-  { name: 'Dom', visitas: 120, contatos: 15, favoritos: 25 },
-  { name: 'Seg', visitas: 180, contatos: 23, favoritos: 30 },
-  { name: 'Ter', visitas: 150, contatos: 18, favoritos: 22 },
-  { name: 'Qua', visitas: 170, contatos: 20, favoritos: 27 },
-  { name: 'Qui', visitas: 190, contatos: 25, favoritos: 35 },
-  { name: 'Sex', visitas: 220, contatos: 30, favoritos: 40 },
-  { name: 'Sáb', visitas: 200, contatos: 28, favoritos: 38 },
+  { name: 'Dom', visitas: 42, contatos: 3, favoritos: 7 },
+  { name: 'Seg', visitas: 68, contatos: 5, favoritos: 12 },
+  { name: 'Ter', visitas: 53, contatos: 4, favoritos: 9 },
+  { name: 'Qua', visitas: 72, contatos: 7, favoritos: 14 },
+  { name: 'Qui', visitas: 87, contatos: 8, favoritos: 17 },
+  { name: 'Sex', visitas: 103, contatos: 12, favoritos: 21 },
+  { name: 'Sáb', visitas: 96, contatos: 9, favoritos: 19 },
 ];
 
 const monthlyData = [
-  { name: 'Jan', visitas: 750, contatos: 95, favoritos: 120 },
-  { name: 'Fev', visitas: 820, contatos: 110, favoritos: 140 },
-  { name: 'Mar', visitas: 930, contatos: 125, favoritos: 160 },
-  { name: 'Abr', visitas: 890, contatos: 115, favoritos: 150 },
-  { name: 'Mai', visitas: 950, contatos: 130, favoritos: 165 },
-  { name: 'Jun', visitas: 980, contatos: 140, favoritos: 170 },
-  { name: 'Jul', visitas: 1050, contatos: 150, favoritos: 190 },
-  { name: 'Ago', visitas: 1100, contatos: 155, favoritos: 200 },
-  { name: 'Set', visitas: 1200, contatos: 170, favoritos: 220 },
-  { name: 'Out', visitas: 1250, contatos: 180, favoritos: 230 },
-  { name: 'Nov', visitas: 1300, contatos: 185, favoritos: 240 },
-  { name: 'Dez', visitas: 1400, contatos: 200, favoritos: 260 },
+  { name: 'Jan', visitas: 320, contatos: 24, favoritos: 42 },
+  { name: 'Fev', visitas: 356, contatos: 31, favoritos: 53 },
+  { name: 'Mar', visitas: 412, contatos: 36, favoritos: 67 },
+  { name: 'Abr', visitas: 378, contatos: 29, favoritos: 58 },
+  { name: 'Mai', visitas: 390, contatos: 33, favoritos: 61 },
+  { name: 'Jun', visitas: 432, contatos: 38, favoritos: 72 },
+  { name: 'Jul', visitas: 468, contatos: 43, favoritos: 79 },
+  { name: 'Ago', visitas: 497, contatos: 47, favoritos: 84 },
+  { name: 'Set', visitas: 523, contatos: 51, favoritos: 89 },
+  { name: 'Out', visitas: 546, contatos: 54, favoritos: 93 },
+  { name: 'Nov', visitas: 572, contatos: 59, favoritos: 102 },
+  { name: 'Dez', visitas: 621, contatos: 68, favoritos: 112 },
 ];
 
 const propertyPerformanceData = [
-  { id: '1', title: 'Apartamento em Pinheiros', visitas: 350, contatos: 42, conversao: 12 },
-  { id: '2', title: 'Casa em Vila Madalena', visitas: 480, contatos: 65, conversao: 13.5 },
-  { id: '3', title: 'Studio na Consolação', visitas: 260, contatos: 30, conversao: 11.5 },
-  { id: '4', title: 'Apartamento em Moema', visitas: 310, contatos: 38, conversao: 12.3 },
-  { id: '5', title: 'Casa em Perdizes', visitas: 290, contatos: 35, conversao: 12.1 },
+  { id: '1', title: 'Apartamento em Pinheiros', visitas: 187, contatos: 12, conversao: 6.4 },
+  { id: '2', title: 'Casa em Vila Madalena', visitas: 243, contatos: 19, conversao: 7.8 },
+  { id: '3', title: 'Studio na Consolação', visitas: 165, contatos: 9, conversao: 5.5 },
+  { id: '4', title: 'Apartamento em Moema', visitas: 192, contatos: 14, conversao: 7.3 },
+  { id: '5', title: 'Casa em Perdizes', visitas: 178, contatos: 11, conversao: 6.2 },
 ];
 
 const MetricsManager = () => {
@@ -98,10 +98,10 @@ const MetricsManager = () => {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12,361</div>
+            <div className="text-2xl font-bold">5,217</div>
             <div className="flex items-center text-xs text-green-500">
               <ArrowUp className="mr-1 h-3 w-3" />
-              <span>24% no último mês</span>
+              <span>8.2% no último mês</span>
             </div>
           </CardContent>
         </Card>
@@ -113,10 +113,10 @@ const MetricsManager = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">342</div>
+            <div className="text-2xl font-bold">147</div>
             <div className="flex items-center text-xs text-green-500">
               <ArrowUp className="mr-1 h-3 w-3" />
-              <span>18% no último mês</span>
+              <span>5.7% no último mês</span>
             </div>
           </CardContent>
         </Card>
@@ -131,7 +131,7 @@ const MetricsManager = () => {
             <div className="text-2xl font-bold">2.8%</div>
             <div className="flex items-center text-xs text-red-500">
               <ArrowDown className="mr-1 h-3 w-3" />
-              <span>0.5% no último mês</span>
+              <span>0.3% no último mês</span>
             </div>
           </CardContent>
         </Card>
@@ -143,10 +143,10 @@ const MetricsManager = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3m 45s</div>
+            <div className="text-2xl font-bold">2m 37s</div>
             <div className="flex items-center text-xs text-green-500">
               <ArrowUp className="mr-1 h-3 w-3" />
-              <span>10% no último mês</span>
+              <span>12% no último mês</span>
             </div>
           </CardContent>
         </Card>

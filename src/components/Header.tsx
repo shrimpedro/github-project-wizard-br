@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Search } from 'lucide-react';
+import { Search, LogIn } from 'lucide-react';
 
 interface HeaderProps {
   logo: string;
@@ -42,8 +42,18 @@ const Header = ({ logo, siteName }: HeaderProps) => {
               Anunciar imóvel
             </Link>
           </nav>
-          <Button variant="outline" className="ml-4">Entrar</Button>
-          <Button>Cadastrar</Button>
+          <Button 
+            as={Link} 
+            to="/submit-property" 
+            variant="outline" 
+            className="ml-4"
+          >
+            Enviar Imóvel
+          </Button>
+          <Button as={Link} to="/admin" className="flex items-center gap-2">
+            <LogIn className="h-4 w-4" />
+            Área do Corretor
+          </Button>
         </div>
         
         <div className="md:hidden">
@@ -85,8 +95,24 @@ const Header = ({ logo, siteName }: HeaderProps) => {
               Anunciar imóvel
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
-              <Button variant="outline" className="w-full">Entrar</Button>
-              <Button className="w-full">Cadastrar</Button>
+              <Button 
+                as={Link} 
+                to="/submit-property" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Enviar Imóvel
+              </Button>
+              <Button 
+                as={Link} 
+                to="/admin" 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <LogIn className="h-4 w-4" />
+                Área do Corretor
+              </Button>
             </div>
           </nav>
         </div>
