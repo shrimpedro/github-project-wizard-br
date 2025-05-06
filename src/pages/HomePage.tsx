@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
@@ -12,93 +13,16 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
-
-// Este é um exemplo de dados, em produção viria de uma API
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Apartamento em Pinheiros',
-    address: 'Pinheiros, São Paulo - SP',
-    price: 2500,
-    type: 'rent',
-    bedrooms: 2,
-    bathrooms: 1,
-    area: 65,
-    imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60'
-  },
-  {
-    id: '2',
-    title: 'Casa em Vila Madalena',
-    address: 'Vila Madalena, São Paulo - SP',
-    price: 1200000,
-    type: 'sale',
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 120,
-    imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG91c2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60'
-  },
-  {
-    id: '3',
-    title: 'Studio na Consolação',
-    address: 'Consolação, São Paulo - SP',
-    price: 1800,
-    type: 'rent',
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 40,
-    imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3R1ZGlvJTIwYXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60'
-  },
-  {
-    id: '4',
-    title: 'Apartamento em Moema',
-    address: 'Moema, São Paulo - SP',
-    price: 4500,
-    type: 'rent',
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 110,
-    imageUrl: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGFwYXJ0bWVudHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60'
-  },
-  {
-    id: '5',
-    title: 'Casa em Perdizes',
-    address: 'Perdizes, São Paulo - SP',
-    price: 1500000,
-    type: 'sale',
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 180,
-    imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8aG91c2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60'
-  },
-  {
-    id: '6',
-    title: 'Apartamento no Itaim',
-    address: 'Itaim Bibi, São Paulo - SP',
-    price: 3200,
-    type: 'rent',
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 75,
-    imageUrl: 'https://images.unsplash.com/photo-1560448204-61dc36dc98c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGFwYXJ0bWVudHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60'
-  }
-];
-
-// Em uma aplicação real, isso seria carregado de uma API ou banco de dados
-const defaultSiteSettings = {
-  siteName: "ImobiliáriaApp",
-  logo: "",
-  contactEmail: "contato@imobiliaria.com",
-  contactPhone: "(11) 9999-9999",
-  heroTitle: "Encontre seu novo lar",
-  heroSubtitle: "Milhares de imóveis para alugar ou comprar",
-  heroBackground: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80",
-};
+import { propertyService, siteSettingsService, messageService } from '../services/api';
 
 const HomePage = () => {
-  const [settings, setSettings] = useState(defaultSiteSettings);
+  const [settings, setSettings] = useState<any>({});
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [featuredRentals, setFeaturedRentals] = useState<Property[]>([]);
+  const [featuredSales, setFeaturedSales] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -107,13 +31,38 @@ const HomePage = () => {
     message: ''
   });
 
-  // Em uma aplicação real, faríamos uma chamada para API aqui
   useEffect(() => {
-    // Simula o carregamento das configurações da API
-    const savedSettings = localStorage.getItem('siteSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [propertiesData, siteSettings] = await Promise.all([
+          propertyService.getAllProperties(),
+          siteSettingsService.getSettings()
+        ]);
+        
+        // Get featured properties or most recently added if not enough featured ones
+        const rentals = propertiesData
+          .filter(p => p.type === 'rent' && p.status === 'active')
+          .sort((a, b) => (a.featured === b.featured) ? 0 : a.featured ? -1 : 1)
+          .slice(0, 3);
+          
+        const sales = propertiesData
+          .filter(p => p.type === 'sale' && p.status === 'active')
+          .sort((a, b) => (a.featured === b.featured) ? 0 : a.featured ? -1 : 1)
+          .slice(0, 3);
+        
+        setFeaturedRentals(rentals);
+        setFeaturedSales(sales);
+        setSettings(siteSettings);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Erro ao carregar dados do site');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Manipular cliques em imóveis
@@ -136,35 +85,83 @@ const HomePage = () => {
   };
 
   // Enviar formulário de contato
-  const handleSubmitContact = (e: React.FormEvent) => {
+  const handleSubmitContact = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Em uma aplicação real, enviaria para um servidor
-    toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-    setIsContactOpen(false);
-    setContactForm({
-      name: '',
-      email: '',
-      phone: '',
-      message: ''
-    });
+    
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      toast.error('Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+
+    try {
+      const messageData = {
+        name: contactForm.name,
+        email: contactForm.email,
+        phone: contactForm.phone,
+        message: contactForm.message,
+        property_id: selectedProperty?.id
+      };
+      
+      await messageService.sendMessage(messageData);
+      toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+      setIsContactOpen(false);
+      setContactForm({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Não foi possível enviar sua mensagem. Tente novamente mais tarde.');
+    }
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header logo={settings.logo} siteName={settings.siteName} />
+      <Header logo={settings.logo} siteName={settings.site_name || "ImobiliáriaApp"} />
       
       <main className="flex-grow">
         <HeroSection 
-          title={settings.heroTitle} 
-          subtitle={settings.heroSubtitle} 
-          backgroundImage={settings.heroBackground} 
+          title={settings.hero_title || "Encontre seu novo lar"} 
+          subtitle={settings.hero_subtitle || "Milhares de imóveis para alugar ou comprar"} 
+          backgroundImage={settings.hero_background || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80"} 
         />
         
-        <PropertyGrid 
-          properties={mockProperties.filter(p => p.type === 'rent')} 
-          title="Destaques para alugar" 
-          onPropertyClick={handlePropertyClick}
-        />
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Destaques para alugar</h2>
+            <Link to="/alugar" className="text-primary hover:underline font-medium">
+              Ver todos
+            </Link>
+          </div>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-300"></div>
+                  <div className="p-4">
+                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            featuredRentals.length > 0 ? (
+              <PropertyGrid 
+                properties={featuredRentals} 
+                onPropertyClick={handlePropertyClick}
+              />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Nenhum imóvel para alugar disponível no momento</p>
+              </div>
+            )
+          )}
+        </div>
         
         <div className="bg-gray-50 py-16">
           <div className="container mx-auto px-4 text-center">
@@ -221,19 +218,46 @@ const HomePage = () => {
           </div>
         </div>
         
-        <div className="py-16">
-          <PropertyGrid 
-            properties={mockProperties.filter(p => p.type === 'sale')} 
-            title="Destaques para comprar" 
-            onPropertyClick={handlePropertyClick}
-          />
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Destaques para comprar</h2>
+            <Link to="/comprar" className="text-primary hover:underline font-medium">
+              Ver todos
+            </Link>
+          </div>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-300"></div>
+                  <div className="p-4">
+                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            featuredSales.length > 0 ? (
+              <PropertyGrid 
+                properties={featuredSales} 
+                onPropertyClick={handlePropertyClick}
+              />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Nenhum imóvel para venda disponível no momento</p>
+              </div>
+            )
+          )}
         </div>
       </main>
       
       <Footer 
-        siteName={settings.siteName}
-        contactEmail={settings.contactEmail}
-        contactPhone={settings.contactPhone}
+        siteName={settings.site_name || "ImobiliáriaApp"} 
+        contactEmail={settings.contact_email || "contato@imobiliaria.com"} 
+        contactPhone={settings.contact_phone || "(11) 9999-9999"} 
       />
       
       {/* Modal de detalhes do imóvel */}

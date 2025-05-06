@@ -22,6 +22,10 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CareersPage from "./pages/CareersPage";
 import PageContent from "./pages/PageContent";
+import SalesPage from "./pages/SalesPage";
+import RentalsPage from "./pages/RentalsPage";
+import MediaManagerPage from "./pages/MediaManagerPage";
+import SocialIntegrationsPage from "./pages/SocialIntegrationsPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +37,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/comprar" element={<SalesPage />} />
+          <Route path="/alugar" element={<RentalsPage />} />
           <Route path="/submit-property" element={<SubmitPropertyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -54,6 +60,8 @@ const App = () => (
             <Route path="mensagens" element={<MessagesPage />} />
             <Route path="metricas" element={<MetricsPage />} />
             <Route path="usuarios" element={<UsersPage />} />
+            <Route path="media" element={<MediaManagerPage />} />
+            <Route path="social" element={<SocialIntegrationsPage />} />
           </Route>
           
           {/* Rota 404 */}

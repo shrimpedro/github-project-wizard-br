@@ -2,110 +2,125 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Search, LogIn } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 interface HeaderProps {
-  logo: string;
+  logo?: string;
   siteName: string;
 }
 
-const Header = ({ logo, siteName }: HeaderProps) => {
+const Header: React.FC<HeaderProps> = ({ logo, siteName }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white shadow">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center space-x-2">
+    <header className="bg-white border-b sticky top-0 z-40">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center py-4">
+          <Link to="/" className="flex items-center">
             {logo ? (
-              <img src={logo} alt={siteName} className="h-8 w-auto" />
+              <img src={logo} alt={siteName} className="h-8 mr-2" />
             ) : (
-              <div className="h-8 w-auto font-bold text-2xl text-primary">
-                {siteName || "ImobiliáriaApp"}
-              </div>
+              <span className="text-2xl font-bold text-primary">{siteName}</span>
             )}
           </Link>
-        </div>
-        
-        <div className="hidden md:flex items-center space-x-4">
-          <nav className="flex items-center space-x-4">
-            <Link to="/" className="text-sm font-medium hover:text-primary">
+
+          {/* Links de navegação para desktop */}
+          <nav className="hidden md:flex space-x-8">
+            <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
               Início
             </Link>
-            <Link to="/alugar" className="text-sm font-medium hover:text-primary">
-              Alugar
-            </Link>
-            <Link to="/comprar" className="text-sm font-medium hover:text-primary">
+            <Link to="/comprar" className="text-gray-600 hover:text-primary transition-colors">
               Comprar
             </Link>
-            <Link to="/anunciar" className="text-sm font-medium hover:text-primary">
-              Anunciar imóvel
+            <Link to="/alugar" className="text-gray-600 hover:text-primary transition-colors">
+              Alugar
+            </Link>
+            <Link to="/about" className="text-gray-600 hover:text-primary transition-colors">
+              Sobre
+            </Link>
+            <Link to="/contact" className="text-gray-600 hover:text-primary transition-colors">
+              Contato
             </Link>
           </nav>
-          <Link to="/submit-property" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 ml-4">
-            Enviar Imóvel
-          </Link>
-          <Link to="/admin" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 gap-2">
-            <LogIn className="h-4 w-4" />
-            Área do Corretor
-          </Link>
-        </div>
-        
-        <div className="md:hidden">
-          <Button
-            variant="ghost"
+
+          <div className="hidden md:block">
+            <Link to="/admin">
+              <Button variant="outline" className="mr-2">
+                Área Administrativa
+              </Button>
+            </Link>
+            <Link to="/submit-property">
+              <Button>Anunciar Imóvel</Button>
+            </Link>
+          </div>
+
+          {/* Botão do menu móvel */}
+          <button
+            className="md:hidden focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-            className="px-2"
           >
             {isMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X className="h-6 w-6 text-gray-600" />
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
+              <Menu className="h-6 w-6 text-gray-600" />
             )}
-          </Button>
+          </button>
         </div>
       </div>
-      
+
+      {/* Menu móvel */}
       {isMenuOpen && (
-        <div className="md:hidden px-4 py-2 pb-4 shadow-lg">
-          <nav className="flex flex-col space-y-4">
-            <Link to="/" className="text-sm font-medium hover:text-primary" onClick={() => setIsMenuOpen(false)}>
+        <div className="md:hidden bg-white border-t pt-2 pb-4 px-4">
+          <nav className="flex flex-col space-y-3">
+            <Link
+              to="/"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Início
             </Link>
-            <Link to="/alugar" className="text-sm font-medium hover:text-primary" onClick={() => setIsMenuOpen(false)}>
-              Alugar
-            </Link>
-            <Link to="/comprar" className="text-sm font-medium hover:text-primary" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              to="/comprar"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Comprar
             </Link>
-            <Link to="/anunciar" className="text-sm font-medium hover:text-primary" onClick={() => setIsMenuOpen(false)}>
-              Anunciar imóvel
+            <Link
+              to="/alugar"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Alugar
             </Link>
-            <div className="flex flex-col space-y-2 pt-2">
-              <Link 
-                to="/submit-property" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Enviar Imóvel
-              </Link>
-              <Link 
-                to="/admin" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full gap-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <LogIn className="h-4 w-4" />
-                Área do Corretor
-              </Link>
-            </div>
+            <Link
+              to="/about"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Sobre
+            </Link>
+            <Link
+              to="/contact"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contato
+            </Link>
+            <Link
+              to="/admin"
+              className="text-gray-600 hover:text-primary py-2 transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Área Administrativa
+            </Link>
+            <Link
+              to="/submit-property"
+              className="bg-primary text-white py-2 px-4 rounded text-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Anunciar Imóvel
+            </Link>
           </nav>
         </div>
       )}
