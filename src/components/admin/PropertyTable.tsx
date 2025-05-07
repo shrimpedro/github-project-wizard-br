@@ -20,6 +20,29 @@ interface PropertyTableProps {
 }
 
 const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => {
+  // Helper function to format price
+  const formatPrice = (price: number, type: 'rent' | 'sale'): string => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0,
+    }).format(price) + (type === 'rent' ? '/mês' : '');
+  };
+
+  // Helper function to get status badge
+  const getStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Ativo</Badge>;
+      case 'pending':
+        return <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50">Pendente</Badge>;
+      case 'archived':
+        return <Badge variant="outline" className="text-gray-600 border-gray-200 bg-gray-50">Arquivado</Badge>;
+      default:
+        return <Badge variant="outline">Ativo</Badge>;
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -32,6 +55,7 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
             <TableHead>Quartos</TableHead>
             <TableHead>Área (m²)</TableHead>
             <TableHead>Visibilidade</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead className="w-[100px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -45,8 +69,16 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
                       src={property.imageUrl} 
                       alt={property.title} 
                       className="h-10 w-10 rounded-md object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100?text=Sem+Imagem';
+                      }}
                     />
                     <span>{property.title}</span>
+                    {property.featured && (
+                      <Badge className="bg-primary text-white px-2 py-1 text-xs rounded-md ml-1">
+                        Destaque
+                      </Badge>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>{property.address}</TableCell>
@@ -54,10 +86,7 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
                   {property.type === 'rent' ? 'Aluguel' : 'Venda'}
                 </TableCell>
                 <TableCell>
-                  {property.type === 'rent' 
-                    ? `R$ ${property.price}/mês`
-                    : `R$ ${property.price.toLocaleString()}`
-                  }
+                  {formatPrice(property.price, property.type)}
                 </TableCell>
                 <TableCell>{property.bedrooms}</TableCell>
                 <TableCell>{property.area}</TableCell>
@@ -73,6 +102,9 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
                       Público
                     </Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  {getStatusBadge(property.status)}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
@@ -96,7 +128,7 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="h-24 text-center">
+              <TableCell colSpan={9} className="h-24 text-center">
                 Nenhum imóvel encontrado.
               </TableCell>
             </TableRow>

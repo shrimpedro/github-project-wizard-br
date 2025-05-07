@@ -76,7 +76,7 @@ const PropertyForm = ({ initialData, onSubmit }: PropertyFormProps) => {
       contactPhone: initialData?.contactPhone || '',
       contactEmail: initialData?.contactEmail || '',
       isPublic: initialData?.isPublic !== undefined ? initialData.isPublic : true,
-      status: initialData?.status || 'active',
+      status: initialData?.status as 'active' | 'pending' | 'archived' || 'active',
       featured: initialData?.featured || false,
     },
   });

@@ -9,7 +9,7 @@ import PropertyTable from './PropertyTable';
 import PropertyFormDialog from './PropertyFormDialog';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import PropertySearchBar, { PropertyFilters } from './PropertySearchBar';
-import { exportToExcel } from '@/utils/exportUtils';
+import { exportPropertiesToExcel } from '@/utils/exportUtils';
 
 // Propriedades iniciais para demonstração
 const initialProperties: Property[] = [
@@ -26,7 +26,10 @@ const initialProperties: Property[] = [
     imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60',
     contactPhone: '(11) 98765-4321',
     contactEmail: 'contato@example.com',
-    isPublic: true
+    isPublic: true,
+    status: 'active',
+    featured: false,
+    images: []
   },
   {
     id: '2',
@@ -41,7 +44,10 @@ const initialProperties: Property[] = [
     imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aG91c2V8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
     contactPhone: '(11) 98765-4321',
     contactEmail: 'contato@example.com',
-    isPublic: true
+    isPublic: true,
+    status: 'active',
+    featured: true,
+    images: []
   },
   {
     id: '3',
@@ -56,7 +62,10 @@ const initialProperties: Property[] = [
     imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c3R1ZGlvJTIwYXBhcnRtZW50fGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60',
     contactPhone: '(11) 98765-4321',
     contactEmail: 'contato@example.com',
-    isPublic: false
+    isPublic: false,
+    status: 'active',
+    featured: false,
+    images: []
   },
 ];
 
@@ -117,7 +126,8 @@ const PropertiesManager = () => {
     // Ensure all required properties are present
     setProperties([...properties, { 
       id, 
-      ...newProperty
+      ...newProperty,
+      status: newProperty.status || 'active'
     }]);
     
     setIsAddDialogOpen(false);
@@ -158,13 +168,7 @@ const PropertiesManager = () => {
   // Exportar propriedades para Excel
   const handleExportToExcel = () => {
     try {
-      // Prepare data for export - omit private fields
-      const exportData = filteredProperties.map(({ contactPhone, contactEmail, fullAddress, ...property }) => ({
-        ...property,
-        visibilidade: property.isPublic ? 'Público' : 'Privado'
-      }));
-      
-      exportToExcel(exportData, 'imoveis_exportados');
+      exportPropertiesToExcel(filteredProperties);
       toast.success('Imóveis exportados com sucesso!');
     } catch (error) {
       console.error('Erro ao exportar imóveis:', error);

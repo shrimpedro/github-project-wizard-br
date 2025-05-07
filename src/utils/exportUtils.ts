@@ -1,5 +1,6 @@
 
 import * as XLSX from 'xlsx';
+import { Property } from '../components/PropertyCard';
 
 /**
  * Exports data to an Excel file
@@ -58,6 +59,12 @@ export const exportToExcel = (
           currency: 'BRL'
         }).format(item.price);
       }
+      if (item.status) {
+        processedItem.statusFormatado = translateStatus(item.status);
+      }
+      if (item.isPublic !== undefined) {
+        processedItem.visibilidade = item.isPublic ? 'Público' : 'Privado';
+      }
       
       return processedItem;
     });
@@ -75,4 +82,43 @@ export const exportToExcel = (
     console.error('Erro ao exportar para Excel:', error);
     throw error;
   }
+};
+
+// Helper function to translate property status to Portuguese
+const translateStatus = (status: string): string => {
+  const statusMap: Record<string, string> = {
+    'active': 'Ativo',
+    'pending': 'Pendente',
+    'archived': 'Arquivado'
+  };
+  
+  return statusMap[status] || status;
+};
+
+/**
+ * Exports list of properties to Excel file
+ * @param properties Array of Property objects
+ * @param filename Name of the file without extension
+ */
+export const exportPropertiesToExcel = (
+  properties: Property[],
+  filename: string = 'imoveis_exportados'
+): void => {
+  // Map properties to a format suitable for export
+  const exportData = properties.map(property => ({
+    id: property.id,
+    titulo: property.title,
+    endereco: property.address,
+    preco: property.price,
+    tipo: property.type === 'rent' ? 'Aluguel' : 'Venda',
+    quartos: property.bedrooms,
+    banheiros: property.bathrooms,
+    area: property.area,
+    descricao: property.description || '',
+    status: translateStatus(property.status || 'active'),
+    destaque: property.featured ? 'Sim' : 'Não',
+    visibilidade: property.isPublic ? 'Público' : 'Privado'
+  }));
+  
+  exportToExcel(exportData, filename, 'Imóveis');
 };

@@ -16,7 +16,7 @@ export interface Property {
   area: number;
   imageUrl: string;
   description?: string;
-  status?: string;
+  status?: 'active' | 'pending' | 'archived';
   featured?: boolean;
   isPublic?: boolean;
   images?: string[];
@@ -60,6 +60,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, showPriv
             src={property.imageUrl}
             alt={property.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=Sem+Imagem';
+            }}
           />
           <div className="absolute top-2 right-2 flex gap-1">
             {property.featured && (

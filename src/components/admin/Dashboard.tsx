@@ -2,8 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { BarChart2, Home, MessageSquare, Users } from 'lucide-react';
+import { Property } from '../PropertyCard';
 
-const Dashboard = () => {
+interface DashboardProps {
+  properties?: Property[];
+  messages?: any[];
+  users?: any[];
+}
+
+const Dashboard = ({ properties = [], messages = [], users = [] }: DashboardProps) => {
   const [stats, setStats] = useState({
     totalProperties: 0,
     totalViews: 0,
@@ -12,22 +19,16 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Fetch real stats from your backend here
+  // Calculate stats based on available data
   useEffect(() => {
-    // Simulating API call with setTimeout
-    const timer = setTimeout(() => {
-      // This would be replaced with a real API call
-      setStats({
-        totalProperties: 0,
-        totalViews: 0,
-        totalMessages: 0,
-        totalUsers: 0
-      });
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    setStats({
+      totalProperties: properties.length,
+      totalViews: 0, // Could be calculated from analytics if available
+      totalMessages: messages.length,
+      totalUsers: users.length
+    });
+    setLoading(false);
+  }, [properties, messages, users]);
 
   const statsItems = [
     { 
@@ -60,19 +61,23 @@ const Dashboard = () => {
     },
   ];
 
-  const recentActivities = loading ? [] : [
-    {
-      title: 'Bem-vindo ao dashboard',
-      time: new Date().toLocaleString('pt-BR')
-    }
-  ];
+  const recentProperties = properties
+    .slice(0, 5)
+    .map(property => ({
+      title: property.title,
+      type: property.type === 'rent' ? 'Aluguel' : 'Venda',
+      price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(property.price)
+    }));
 
-  const popularProperties = loading ? [] : [
-    {
-      title: 'Ainda sem imóveis populares',
-      views: 0
-    }
-  ];
+  const recentMessages = messages
+    .slice(0, 5)
+    .map(message => ({
+      title: message?.name || 'Contato',
+      time: message?.created_at ? new Date(message.created_at).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')
+    }));
 
   return (
     <div className="p-6">
@@ -101,7 +106,7 @@ const Dashboard = () => {
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Atividade Recente</CardTitle>
+            <CardTitle>Imóveis Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -110,19 +115,19 @@ const Dashboard = () => {
                 <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
                 <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
               </div>
-            ) : recentActivities.length > 0 ? (
+            ) : recentProperties.length > 0 ? (
               <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
+                {recentProperties.map((property, index) => (
                   <div key={index} className="border-b pb-2">
-                    <p className="font-medium">{activity.title}</p>
-                    <p className="text-sm text-gray-500">{activity.time}</p>
+                    <p className="font-medium">{property.title}</p>
+                    <p className="text-sm text-gray-500">{property.type} - {property.price}</p>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <p>Nenhuma atividade recente</p>
-                <p className="text-sm mt-2">As atividades aparecerão aqui quando você começar a usar o sistema</p>
+                <p>Nenhum imóvel cadastrado</p>
+                <p className="text-sm mt-2">Adicione imóveis para ver as estatísticas</p>
               </div>
             )}
           </CardContent>
@@ -130,7 +135,7 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Imóveis Populares</CardTitle>
+            <CardTitle>Mensagens Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -139,19 +144,19 @@ const Dashboard = () => {
                 <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
                 <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
               </div>
-            ) : popularProperties.length > 0 ? (
+            ) : recentMessages.length > 0 ? (
               <div className="space-y-4">
-                {popularProperties.map((property, index) => (
+                {recentMessages.map((message, index) => (
                   <div key={index} className="border-b pb-2">
-                    <p className="font-medium">{property.title}</p>
-                    <p className="text-sm text-gray-500">{property.views} visualizações esta semana</p>
+                    <p className="font-medium">{message.title}</p>
+                    <p className="text-sm text-gray-500">{message.time}</p>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <p>Nenhum imóvel popular</p>
-                <p className="text-sm mt-2">Adicione imóveis para começar a ver estatísticas</p>
+                <p>Nenhuma mensagem recente</p>
+                <p className="text-sm mt-2">As mensagens aparecerão aqui quando recebidas</p>
               </div>
             )}
           </CardContent>
