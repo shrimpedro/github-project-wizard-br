@@ -12,21 +12,7 @@ import PropertyGrid from '@/components/PropertyGrid';
 import PropertyDetailModal from '@/components/PropertyDetailModal';
 import { propertyService } from '@/services/api';
 import { toast } from 'sonner';
-
-interface Property {
-  id: string;
-  title: string;
-  address: string;
-  price: number;
-  type: 'rent' | 'sale';
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  imageUrl: string;
-  description: string;
-  status: string;
-  featured: boolean;
-}
+import { Property } from '@/components/PropertyCard';
 
 interface FilterState {
   minPrice?: number;
@@ -56,8 +42,15 @@ const RentalsPage: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await propertyService.getPropertyByType('rent');
-        setProperties(data);
-        setFilteredProperties(data);
+        // Ensure the data conforms to the Property interface
+        const formattedData: Property[] = data.map((property: any) => ({
+          ...property,
+          description: property.description || '',
+          status: (property.status as "active" | "pending" | "archived") || 'active',
+          featured: property.featured || false,
+        }));
+        setProperties(formattedData);
+        setFilteredProperties(formattedData);
       } catch (error) {
         console.error('Error loading properties:', error);
         toast.error('Não foi possível carregar os imóveis');
@@ -80,7 +73,7 @@ const RentalsPage: React.FC = () => {
         property => 
           property.title.toLowerCase().includes(query) || 
           property.address.toLowerCase().includes(query) ||
-          property.description.toLowerCase().includes(query)
+          (property.description && property.description.toLowerCase().includes(query))
       );
     }
     
