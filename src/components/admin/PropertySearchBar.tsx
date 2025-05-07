@@ -149,14 +149,14 @@ const PropertySearchBar = ({
                 <div>
                   <label className="text-sm font-medium">Quartos</label>
                   <Select 
-                    value={filters.bedrooms?.toString() || '0'} 
-                    onValueChange={(value) => handleFilterChange('bedrooms', value ? Number(value) : undefined)}
+                    value={filters.bedrooms?.toString() || 'any'} 
+                    onValueChange={(value) => handleFilterChange('bedrooms', value === 'any' ? undefined : Number(value))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Qualquer quantidade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0">Qualquer</SelectItem>
+                      <SelectItem value="any">Qualquer</SelectItem>
                       <SelectItem value="1">1+</SelectItem>
                       <SelectItem value="2">2+</SelectItem>
                       <SelectItem value="3">3+</SelectItem>

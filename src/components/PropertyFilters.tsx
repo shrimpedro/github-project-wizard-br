@@ -83,7 +83,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
   };
 
   const handleSelectChange = (field: keyof FilterValues, value: string) => {
-    const numberValue = value === '' ? undefined : Number(value);
+    const numberValue = value === 'any' ? undefined : Number(value);
     setLocalFilters(prev => ({
       ...prev,
       [field]: numberValue
@@ -175,14 +175,14 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
               <div>
                 <Label htmlFor="bedrooms">Quartos</Label>
                 <Select
-                  value={localFilters.bedrooms?.toString() || ''}
+                  value={localFilters.bedrooms?.toString() || 'any'}
                   onValueChange={(value) => handleSelectChange('bedrooms', value)}
                 >
                   <SelectTrigger id="bedrooms" className="mt-1">
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Qualquer</SelectItem>
+                    <SelectItem value="any">Qualquer</SelectItem>
                     <SelectItem value="1">1+</SelectItem>
                     <SelectItem value="2">2+</SelectItem>
                     <SelectItem value="3">3+</SelectItem>
@@ -194,14 +194,14 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
               <div>
                 <Label htmlFor="bathrooms">Banheiros</Label>
                 <Select
-                  value={localFilters.bathrooms?.toString() || ''}
+                  value={localFilters.bathrooms?.toString() || 'any'}
                   onValueChange={(value) => handleSelectChange('bathrooms', value)}
                 >
                   <SelectTrigger id="bathrooms" className="mt-1">
                     <SelectValue placeholder="Qualquer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Qualquer</SelectItem>
+                    <SelectItem value="any">Qualquer</SelectItem>
                     <SelectItem value="1">1+</SelectItem>
                     <SelectItem value="2">2+</SelectItem>
                     <SelectItem value="3">3+</SelectItem>
