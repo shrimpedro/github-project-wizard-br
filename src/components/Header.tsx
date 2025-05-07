@@ -1,127 +1,105 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Menu, X } from 'lucide-react';
 
 interface HeaderProps {
+  siteName?: string;
   logo?: string;
-  siteName: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ logo, siteName }) => {
+const Header: React.FC<HeaderProps> = ({ siteName = "ImobiliáriaApp", logo }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path ? 'text-primary' : 'text-gray-700 hover:text-primary';
+  };
 
   return (
-    <header className="bg-white border-b sticky top-0 z-40">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo & Site Name */}
           <Link to="/" className="flex items-center">
             {logo ? (
-              <img src={logo} alt={siteName} className="h-8 mr-2" />
-            ) : (
-              <span className="text-2xl font-bold text-primary">{siteName}</span>
-            )}
+              <img 
+                src={logo} 
+                alt={siteName} 
+                className="h-8 mr-2"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : null}
+            <span className="text-xl font-bold text-gray-900">{siteName}</span>
           </Link>
-
-          {/* Links de navegação para desktop */}
+          
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link to="/" className="text-gray-600 hover:text-primary transition-colors">
+            <Link to="/" className={`font-medium ${isActive('/')}`}>
               Início
             </Link>
-            <Link to="/comprar" className="text-gray-600 hover:text-primary transition-colors">
-              Comprar
-            </Link>
-            <Link to="/alugar" className="text-gray-600 hover:text-primary transition-colors">
+            <Link to="/alugar" className={`font-medium ${isActive('/alugar')}`}>
               Alugar
             </Link>
-            <Link to="/about" className="text-gray-600 hover:text-primary transition-colors">
-              Sobre
+            <Link to="/comprar" className={`font-medium ${isActive('/comprar')}`}>
+              Comprar
             </Link>
-            <Link to="/contact" className="text-gray-600 hover:text-primary transition-colors">
+            <Link to="/contato" className={`font-medium ${isActive('/contato')}`}>
               Contato
             </Link>
           </nav>
-
-          <div className="hidden md:block">
-            <Link to="/admin">
-              <Button variant="outline" className="mr-2">
-                Área Administrativa
-              </Button>
-            </Link>
-            <Link to="/submit-property">
-              <Button>Anunciar Imóvel</Button>
-            </Link>
+          
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label="Menu principal"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </Button>
           </div>
-
-          {/* Botão do menu móvel */}
-          <button
-            className="md:hidden focus:outline-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6 text-gray-600" />
-            ) : (
-              <Menu className="h-6 w-6 text-gray-600" />
-            )}
-          </button>
         </div>
       </div>
-
-      {/* Menu móvel */}
+      
+      {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t pt-2 pb-4 px-4">
-          <nav className="flex flex-col space-y-3">
-            <Link
-              to="/"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
+        <div className="md:hidden bg-white shadow-md">
+          <div className="px-2 pt-2 pb-4 space-y-1">
+            <Link 
+              to="/" 
+              className="block px-3 py-2 rounded-md font-medium hover:bg-gray-100"
               onClick={() => setIsMenuOpen(false)}
             >
               Início
             </Link>
-            <Link
-              to="/comprar"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Comprar
-            </Link>
-            <Link
-              to="/alugar"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
+            <Link 
+              to="/alugar" 
+              className="block px-3 py-2 rounded-md font-medium hover:bg-gray-100"
               onClick={() => setIsMenuOpen(false)}
             >
               Alugar
             </Link>
-            <Link
-              to="/about"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
+            <Link 
+              to="/comprar" 
+              className="block px-3 py-2 rounded-md font-medium hover:bg-gray-100"
               onClick={() => setIsMenuOpen(false)}
             >
-              Sobre
+              Comprar
             </Link>
-            <Link
-              to="/contact"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
+            <Link 
+              to="/contato" 
+              className="block px-3 py-2 rounded-md font-medium hover:bg-gray-100"
               onClick={() => setIsMenuOpen(false)}
             >
               Contato
             </Link>
-            <Link
-              to="/admin"
-              className="text-gray-600 hover:text-primary py-2 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Área Administrativa
-            </Link>
-            <Link
-              to="/submit-property"
-              className="bg-primary text-white py-2 px-4 rounded text-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Anunciar Imóvel
-            </Link>
-          </nav>
+          </div>
         </div>
       )}
     </header>

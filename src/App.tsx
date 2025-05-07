@@ -1,75 +1,55 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import AdminPage from "./pages/AdminPage";
-import SettingsPage from "./pages/SettingsPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
-import PropertiesPage from "./pages/PropertiesPage";
-import MessagesPage from "./pages/MessagesPage";
-import MetricsPage from "./pages/MetricsPage";
-import UsersPage from "./pages/UsersPage";
-import NotFound from "./pages/NotFound";
-import LoginPage from "./pages/LoginPage";
-import SubmitPropertyPage from "./pages/SubmitPropertyPage";
-import AuthGuard from "./components/AuthGuard";
-import AboutPage from "./pages/AboutPage";
-import ContactPage from "./pages/ContactPage";
-import TermsPage from "./pages/TermsPage";
-import PrivacyPage from "./pages/PrivacyPage";
-import CareersPage from "./pages/CareersPage";
-import PageContent from "./pages/PageContent";
-import SalesPage from "./pages/SalesPage";
-import RentalsPage from "./pages/RentalsPage";
-import MediaManagerPage from "./pages/MediaManagerPage";
-import SocialIntegrationsPage from "./pages/SocialIntegrationsPage";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 
-const queryClient = new QueryClient();
+// Public Pages
+import HomePage from './pages/HomePage';
+import RentalsPage from './pages/RentalsPage';
+import SalesPage from './pages/SalesPage';
+import PropertyDetailPage from './pages/PropertyDetailPage';
+import ContactPage from './pages/ContactPage';
+import NotFoundPage from './pages/NotFoundPage';
+import SearchResultsPage from './pages/SearchResultsPage';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/comprar" element={<SalesPage />} />
-          <Route path="/alugar" element={<RentalsPage />} />
-          <Route path="/submit-property" element={<SubmitPropertyPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/careers" element={<CareersPage />} />
-          <Route path="/page/:slug" element={<PageContent />} />
-          
-          {/* Rotas Protegidas do Admin */}
-          <Route path="/admin" element={
-            <AuthGuard>
-              <AdminPage />
-            </AuthGuard>
-          }>
-            <Route index element={<AdminDashboardPage />} />
-            <Route path="configuracoes" element={<SettingsPage />} />
-            <Route path="imoveis" element={<PropertiesPage />} />
-            <Route path="mensagens" element={<MessagesPage />} />
-            <Route path="metricas" element={<MetricsPage />} />
-            <Route path="usuarios" element={<UsersPage />} />
-            <Route path="media" element={<MediaManagerPage />} />
-            <Route path="social" element={<SocialIntegrationsPage />} />
-          </Route>
-          
-          {/* Rota 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Admin Pages
+import AdminPage from './pages/AdminPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import PropertiesPage from './pages/PropertiesPage';
+import MessagesPage from './pages/MessagesPage';
+import UsersPage from './pages/UsersPage';
+import SettingsPage from './pages/SettingsPage';
+import MetricsPage from './pages/MetricsPage';
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/alugar" element={<RentalsPage />} />
+        <Route path="/comprar" element={<SalesPage />} />
+        <Route path="/imovel/:id" element={<PropertyDetailPage />} />
+        <Route path="/contato" element={<ContactPage />} />
+        <Route path="/busca" element={<SearchResultsPage />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminPage />}>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="properties" element={<PropertiesPage />} />
+          <Route path="messages" element={<MessagesPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="metrics" element={<MetricsPage />} />
+        </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Toaster position="top-right" richColors />
+    </BrowserRouter>
+  );
+};
 
 export default App;
