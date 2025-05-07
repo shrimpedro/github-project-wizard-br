@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2 } from 'lucide-react';
 import SiteSettingsForm from '../components/admin/SiteSettingsForm';
 import ThemeCustomizer, { ThemeSettings } from '../components/admin/ThemeCustomizer';
 
@@ -13,6 +14,18 @@ const defaultSettings = {
   heroTitle: "Encontre seu novo lar",
   heroSubtitle: "Milhares de imóveis para alugar ou comprar",
   heroBackground: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80",
+  address: "Av. Paulista, 1000 - Bela Vista, São Paulo - SP, 01310-100",
+  socialFacebook: "https://facebook.com/imobiliaria",
+  socialInstagram: "https://instagram.com/imobiliaria",
+  socialLinkedin: "https://linkedin.com/company/imobiliaria",
+  metaDescription: "Encontre os melhores imóveis para comprar e alugar. Casas, apartamentos e escritórios em todo o Brasil.",
+  metaKeywords: "imóveis, aluguel, compra, apartamentos, casas, imobiliária",
+  googleAnalyticsId: "",
+  showContactInfo: true,
+  showSocialLinks: true,
+  enableContactForm: true,
+  enableNewsletter: false,
+  footerText: "© 2025 ImobiliáriaApp. Todos os direitos reservados."
 };
 
 const defaultTheme: ThemeSettings = {
@@ -25,6 +38,19 @@ const defaultTheme: ThemeSettings = {
   footerBackground: '#2d3748',
   buttonColor: '#3182ce',
   borderRadius: '0.5rem',
+  fontPrimary: 'Inter, sans-serif',
+  fontSecondary: 'Playfair Display, serif',
+  fontSize: 'medium',
+  lineHeight: 'normal',
+  cardBackground: '#ffffff',
+  navbarVariant: 'light',
+  buttonStyle: 'rounded',
+  heroHeight: 'medium',
+  containerWidth: 'standard',
+  enableAnimations: true,
+  showLogo: true,
+  showSocialLinks: true,
+  enableDarkMode: false,
 };
 
 const SettingsPage = () => {
@@ -32,6 +58,7 @@ const SettingsPage = () => {
   const [theme, setTheme] = useState<ThemeSettings>(defaultTheme);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('general');
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     // Simulação de carregamento de dados da API
@@ -53,13 +80,26 @@ const SettingsPage = () => {
     // Em uma aplicação real, enviaríamos para uma API
     localStorage.setItem('siteSettings', JSON.stringify(newSettings));
     setSettings(newSettings);
+    setHasChanges(true);
+    
+    // Refresh após 2 segundos para demonstrar as mudanças
+    setTimeout(() => {
+      setHasChanges(false);
+    }, 2000);
   };
 
   const handleSaveTheme = (newTheme: ThemeSettings) => {
     localStorage.setItem('siteTheme', JSON.stringify(newTheme));
     setTheme(newTheme);
+    setHasChanges(true);
+    
     // Aplicar o tema imediatamente
     applyTheme(newTheme);
+    
+    // Refresh após 2 segundos para demonstrar as mudanças
+    setTimeout(() => {
+      setHasChanges(false);
+    }, 2000);
   };
 
   const applyTheme = (theme: ThemeSettings) => {
@@ -71,6 +111,19 @@ const SettingsPage = () => {
     root.style.setProperty('--text', theme.textColor);
     root.style.setProperty('--background', theme.backgroundColor);
     root.style.setProperty('--button', theme.buttonColor);
+    
+    // Apply additional theme settings
+    if (theme.fontPrimary) {
+      root.style.setProperty('--font-primary', theme.fontPrimary);
+    }
+    
+    if (theme.fontSecondary) {
+      root.style.setProperty('--font-secondary', theme.fontSecondary);
+    }
+    
+    if (theme.cardBackground) {
+      root.style.setProperty('--card-bg', theme.cardBackground);
+    }
   };
 
   // Aplicar o tema ao carregar a página
@@ -80,11 +133,10 @@ const SettingsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="h-64 bg-gray-200 rounded mb-6"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+      <div className="p-6 h-full flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Carregando configurações...</p>
         </div>
       </div>
     );
@@ -93,6 +145,13 @@ const SettingsPage = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Configurações do Site</h1>
+      
+      {hasChanges && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 flex items-center justify-between">
+          <span>Suas alterações foram salvas com sucesso!</span>
+          <span className="text-sm">As alterações serão aplicadas ao site.</span>
+        </div>
+      )}
       
       <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList>

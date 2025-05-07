@@ -17,7 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+import { Slider } from './ui/slider';
 import { Card } from './ui/card';
+import { Separator } from './ui/separator';
 
 export interface FilterValues {
   minPrice?: number;
@@ -50,7 +52,7 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
     maxArea: filters.maxArea || initialFilters.maxArea,
   });
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   // Update local filters when external filters change
   useEffect(() => {
@@ -86,6 +88,12 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
       ...prev,
       [field]: numberValue
     }));
+
+    // Auto-apply filter when dropdown selection changes
+    onFilterChange({
+      ...localFilters,
+      [field]: numberValue
+    });
   };
 
   const handleApplyFilters = () => {
@@ -109,121 +117,133 @@ const PropertyFilters: React.FC<PropertyFilterProps> = ({
   };
 
   return (
-    <Card className="p-4 mb-6">
-      <Accordion
-        type="single"
-        collapsible
-        value={expanded ? "filters" : ""}
-        onValueChange={(value) => setExpanded(value === "filters")}
-      >
-        <AccordionItem value="filters" className="border-none">
-          <div className="flex items-center justify-between">
-            <AccordionTrigger className="py-2">
-              <div className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                <span className="font-medium">Filtros</span>
+    <Card className="shadow-sm border rounded-lg overflow-hidden">
+      <div className="bg-muted/30 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            <h3 className="font-medium">Filtros</h3>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleResetFilters}>
+              Limpar
+            </Button>
+            <Button size="sm" onClick={handleApplyFilters}>
+              Aplicar
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4">
+        <div className="space-y-6">
+          {/* Price Range */}
+          <div>
+            <h4 className="font-medium mb-3">Faixa de Preço</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="minPrice">Mínimo (R$)</Label>
+                <Input
+                  id="minPrice"
+                  type="number"
+                  placeholder="Mínimo"
+                  value={localFilters.minPrice || ''}
+                  onChange={(e) => handleInputChange('minPrice', e.target.value)}
+                  className="mt-1"
+                />
               </div>
-            </AccordionTrigger>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleResetFilters}>
-                Limpar
-              </Button>
-              <Button size="sm" onClick={handleApplyFilters}>
-                Aplicar
-              </Button>
+              <div>
+                <Label htmlFor="maxPrice">Máximo (R$)</Label>
+                <Input
+                  id="maxPrice"
+                  type="number"
+                  placeholder="Máximo"
+                  value={localFilters.maxPrice || ''}
+                  onChange={(e) => handleInputChange('maxPrice', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
             </div>
           </div>
-          <AccordionContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="minPrice">Preço Mínimo (R$)</Label>
-                  <Input
-                    id="minPrice"
-                    type="number"
-                    placeholder="Min"
-                    value={localFilters.minPrice || ''}
-                    onChange={(e) => handleInputChange('minPrice', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="maxPrice">Preço Máximo (R$)</Label>
-                  <Input
-                    id="maxPrice"
-                    type="number"
-                    placeholder="Max"
-                    value={localFilters.maxPrice || ''}
-                    onChange={(e) => handleInputChange('maxPrice', e.target.value)}
-                  />
-                </div>
+
+          <Separator />
+          
+          {/* Bedrooms & Bathrooms */}
+          <div>
+            <h4 className="font-medium mb-3">Dormitórios e Banheiros</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bedrooms">Quartos</Label>
+                <Select
+                  value={localFilters.bedrooms?.toString() || ''}
+                  onValueChange={(value) => handleSelectChange('bedrooms', value)}
+                >
+                  <SelectTrigger id="bedrooms" className="mt-1">
+                    <SelectValue placeholder="Qualquer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Qualquer</SelectItem>
+                    <SelectItem value="1">1+</SelectItem>
+                    <SelectItem value="2">2+</SelectItem>
+                    <SelectItem value="3">3+</SelectItem>
+                    <SelectItem value="4">4+</SelectItem>
+                    <SelectItem value="5">5+</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="bedrooms">Quartos</Label>
-                  <Select
-                    value={localFilters.bedrooms?.toString() || '0'}
-                    onValueChange={(value) => handleSelectChange('bedrooms', value)}
-                  >
-                    <SelectTrigger id="bedrooms">
-                      <SelectValue placeholder="Qualquer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">Qualquer</SelectItem>
-                      <SelectItem value="1">1+</SelectItem>
-                      <SelectItem value="2">2+</SelectItem>
-                      <SelectItem value="3">3+</SelectItem>
-                      <SelectItem value="4">4+</SelectItem>
-                      <SelectItem value="5">5+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="bathrooms">Banheiros</Label>
-                  <Select
-                    value={localFilters.bathrooms?.toString() || '0'}
-                    onValueChange={(value) => handleSelectChange('bathrooms', value)}
-                  >
-                    <SelectTrigger id="bathrooms">
-                      <SelectValue placeholder="Qualquer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">Qualquer</SelectItem>
-                      <SelectItem value="1">1+</SelectItem>
-                      <SelectItem value="2">2+</SelectItem>
-                      <SelectItem value="3">3+</SelectItem>
-                      <SelectItem value="4">4+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="minArea">Área Mínima (m²)</Label>
-                  <Input
-                    id="minArea"
-                    type="number"
-                    placeholder="Min"
-                    value={localFilters.minArea || ''}
-                    onChange={(e) => handleInputChange('minArea', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="maxArea">Área Máxima (m²)</Label>
-                  <Input
-                    id="maxArea"
-                    type="number"
-                    placeholder="Max"
-                    value={localFilters.maxArea || ''}
-                    onChange={(e) => handleInputChange('maxArea', e.target.value)}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="bathrooms">Banheiros</Label>
+                <Select
+                  value={localFilters.bathrooms?.toString() || ''}
+                  onValueChange={(value) => handleSelectChange('bathrooms', value)}
+                >
+                  <SelectTrigger id="bathrooms" className="mt-1">
+                    <SelectValue placeholder="Qualquer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Qualquer</SelectItem>
+                    <SelectItem value="1">1+</SelectItem>
+                    <SelectItem value="2">2+</SelectItem>
+                    <SelectItem value="3">3+</SelectItem>
+                    <SelectItem value="4">4+</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          </div>
+
+          <Separator />
+          
+          {/* Area Range */}
+          <div>
+            <h4 className="font-medium mb-3">Área (m²)</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="minArea">Mínima</Label>
+                <Input
+                  id="minArea"
+                  type="number"
+                  placeholder="Mín"
+                  value={localFilters.minArea || ''}
+                  onChange={(e) => handleInputChange('minArea', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="maxArea">Máxima</Label>
+                <Input
+                  id="maxArea"
+                  type="number"
+                  placeholder="Máx"
+                  value={localFilters.maxArea || ''}
+                  onChange={(e) => handleInputChange('maxArea', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 };

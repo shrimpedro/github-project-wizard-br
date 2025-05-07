@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '@/components/Header';
@@ -135,7 +134,6 @@ const RentalsPage: React.FC = () => {
   };
   
   const handleContactClick = (property: Property) => {
-    // In a real app, this would show a contact form or redirect to a contact page
     toast.success(`Solicitação de contato para: ${property.title}`);
   };
   
@@ -143,28 +141,24 @@ const RentalsPage: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <Header siteName="ImobiliáriaApp" />
       
-      <main className="flex-grow">
+      <main className="flex-grow bg-background">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8">Imóveis para Alugar</h1>
+          <h1 className="text-3xl font-bold mb-6">Imóveis para Alugar</h1>
           
           <div className="mb-6">
             <SearchBar onSearch={handleSearch} initialQuery={searchQuery} />
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-1">
-              <Card>
-                <CardContent className="p-4">
-                  <PropertyFilters 
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    onResetFilters={handleResetFilters}
-                  />
-                </CardContent>
-              </Card>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-80 flex-shrink-0">
+              <PropertyFilters 
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+              />
             </div>
             
-            <div className="lg:col-span-3">
+            <div className="flex-1">
               {isLoading ? (
                 <div className="flex justify-center items-center h-64">
                   <Loader2 className="h-8 w-8 animate-spin" />
